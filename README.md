@@ -5,6 +5,8 @@ Controls: WASD
 
 Supported devices: Laptop, PC
 
+Important: This project is intended to be run on PyCharm. You must add the interpreter and install the pygame package for this to work when prompted.
+
 # What's new: 1/29/2026
 
 Level 4 is fully released. Try to survive the (not) circles.
