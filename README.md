@@ -9,11 +9,11 @@ Important: This project is intended to be run on PyCharm. You must add the inter
 
 # What's new: 1/29/2026
 
-Level 4 is fully released. Try to survive the (not) circles.
+Sevcon is now fully released as level 4. Try to survive the (not) circles.
 
 Milky Way has been changed to level 5
 
-More VFXs added for levels 3 and 4
+More VFXs added for Milky Way and Sevcon
 
 # Bug fixes:
 
@@ -23,6 +23,4 @@ Music spikes should no longer happen when transitioning between the hub and leve
 
 Level 3 is in the works
 
-Level 1 & 2 VFXs
-
-Level SFXs
+Level VFXs and SFXs coming soon
