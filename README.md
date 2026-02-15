@@ -1,19 +1,17 @@
-# ProjectBeatsRemix Version 0.2.4-alpha
+# ProjectBeatsRemix Version 0.2.5-alpha
 Basically a Pygame version of Just Shapes and Beats and Project Arrhythmia.
 
 Controls: WASD
 
 Supported devices: Laptop, PC
 
-Important: This project is intended to be run on PyCharm. You must add the interpreter and install the pygame package for this to work when prompted.
+Important: Until I publish the project to the web, this project is intended to be run on PyCharm. You must add the interpreter and install the pygame package for this to work when prompted.
 
-# What's new: 1/29/2026
+# What's new: 2/15/2026
 
-Sevcon is now fully released as level 4. Try to survive the (not) circles.
+📜Massive code rewrites for better readability
 
-Milky Way has been changed to level 5
-
-More VFXs added for Milky Way and Sevcon
+🌐New global gravity attribute
 
 # Bug fixes:
 
