@@ -15,7 +15,7 @@ Important: Until I publish the project to the web, this project is intended to b
 
 # Bug fixes:
 
-Music spikes should no longer happen when transitioning between the hub and levels
+Damage check should function properly now
 
 # Coming Soon:
 
