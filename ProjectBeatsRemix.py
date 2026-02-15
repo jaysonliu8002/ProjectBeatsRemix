@@ -10,7 +10,8 @@ size = width, height = 1280, 720
 screen = pygame.display.set_mode(size)
 fps = pygame.time.Clock()
 player = pygame.rect.Rect(width/2-10, height/2-10, 20, 20)
-screenNumber = 2
+#WIP
+screenID = 2
 
 #Music and related
 activeMusic = None
@@ -23,6 +24,82 @@ RectLobbyMusic = 'StartTheStars.mp3'
 
 #Text and related
 font = pygame.font.Font(None, 40)
+
+#Enemies and Logic
+RectEnemies = []
+ExplodeEnemies = []
+LaserEnemies = []
+SpinEnemies = []
+
+#Work in progress
+def enemyLogic(LT):
+    global RectEnemies
+    global ExplodeEnemies
+    global LaserEnemies
+    global SpinEnemies
+    i = len(LaserEnemies) - 1
+    # [pygame.rect.Rect(x, y, w, h), LT, t, warn, False]
+    while i > -1:
+        if LaserEnemies[i][1] == LT:
+            LaserEnemies[i][4] = True
+        elif LaserEnemies[i][1] + LaserEnemies[i][2] == LT:
+            LaserEnemies.pop(i)
+            i -= 1
+            continue
+        if LT < LaserEnemies[i][1]:
+            pygame.draw.rect(screen, "pink", LaserEnemies[i][0])
+        else:
+            pygame.draw.rect(screen, "red", LaserEnemies[i][0])
+        i -= 1
+
+    i = len(SpinEnemies) - 1
+    # [surface, cx, cy, vx, vy, a, da, LT, t, warn, False]
+    while i > -1:
+        if SpinEnemies[i][7] == LT:
+            SpinEnemies[i][10] = True
+        elif SpinEnemies[i][7] + SpinEnemies[i][8] == LT:
+            SpinEnemies.pop(i)
+            i -= 1
+            continue
+        if LT < SpinEnemies[i][7]:
+            SpinEnemies[i][0].fill("pink")
+        else:
+            SpinEnemies[i][0].fill("red")
+        SpinEnemies[i][1] += SpinEnemies[i][3]
+        SpinEnemies[i][2] += SpinEnemies[i][4]
+        SpinEnemies[i][5] += SpinEnemies[i][6]
+
+        # Rotate and draw
+        rotated = pygame.transform.rotate(SpinEnemies[i][0], SpinEnemies[i][5])
+        rotated_rect = rotated.get_rect(center=(SpinEnemies[i][1], SpinEnemies[i][2]))
+        screen.blit(rotated, rotated_rect.topleft)
+        i -= 1
+    i = 0
+    while i < len(RectEnemies):
+        RectEnemies[i][0] = moveObject(RectEnemies[i][0], RectEnemies[i][1], RectEnemies[i][2])
+        if (RectEnemies[i][0].x < 0 - RectEnemies[i][0].width and RectEnemies[i][1] < 0 or
+                RectEnemies[i][0].x > 1280 and RectEnemies[i][1] > 0 or
+                RectEnemies[i][0].y < 0 - RectEnemies[i][0].height and RectEnemies[i][2] > 0 or
+                RectEnemies[i][0].y > 720 and RectEnemies[i][2] < 0):
+            RectEnemies.pop(i)
+            continue
+        pygame.draw.rect(screen, "red", RectEnemies[i][0])
+        i += 1
+    i = 0
+    while i < len(ExplodeEnemies):
+        ExplodeEnemies[i][0] = moveObject(ExplodeEnemies[i][0], ExplodeEnemies[i][1], ExplodeEnemies[i][2])
+        if ExplodeEnemies[i][3] == LT:
+            for j in range(1, ExplodeEnemies[i][4][3] + 1):
+                RectEnemies.append(generateBasic(ExplodeEnemies[i][0].centerx, ExplodeEnemies[i][0].centery,
+                                                 ExplodeEnemies[i][4][0], ExplodeEnemies[i][4][1],
+                                                 round(ExplodeEnemies[i][4][2] * math.cos(
+                                                     2 * math.pi * j / ExplodeEnemies[i][4][3])),
+                                                 round(ExplodeEnemies[i][4][2] * math.sin(
+                                                     2 * math.pi * j / ExplodeEnemies[i][4][3]))))
+            ExplodeEnemies.pop(i)
+            continue
+        pygame.draw.rect(screen, "orange", ExplodeEnemies[i][0])
+        i += 1
 
 #Screen 2
 RectLevelSelect = [pygame.rect.Rect(width/4, height/3, 2*width/4, height/3),
@@ -38,7 +115,10 @@ RectLevelMusic = [[pygame.rect.Rect(0, 0, width/4, height/3), 'CoconutMall.mp3']
              [pygame.rect.Rect(3*width/4, 0, width/4, height/3), 'Sevcon.mp3'],
              [pygame.rect.Rect(0, height/3, width/4, height/3), 'MilkyWays.mp3']]
 
+#Global gravity
 Gvx, Gvy = 0, 0
+
+#Player speed
 speed = 5
 
 def drawText(font, text, color, x, y, alpha):
@@ -52,8 +132,8 @@ def movePlayer(player):
     if keys[pygame.K_a] and player.x > 0: player.x -= speed
     if keys[pygame.K_s] and player.y < 700: player.y += speed
     if keys[pygame.K_d] and player.x < 1260: player.x += speed
-    if player.x>0 and player.x<1260: player.x += Gvx
-    if player.y>0 and player.y<700: player.y -= Gvy
+    if 0 < player.x < 1260: player.x += Gvx
+    if 0 < player.y < 700: player.y -= Gvy
 
 def moveObject(rect, vx, vy):
     rect.x += vx
@@ -65,8 +145,6 @@ def generateBasic(x, y, w, h, vx, vy):
     return [pygame.rect.Rect(x, y, w, h), vx, vy]
 
 #Generates an enemy for a certain time
-#Can also start with a warning
-#Also used for generating stationary enemies
 def generateLaser(x, y, w, h, LT, t, warn):
     return [pygame.rect.Rect(x, y, w, h), LT, t, warn, False]
 
@@ -85,10 +163,72 @@ def transitionColor(LT, time, diff, color1, color2):
     value3 = round(color1[2] + (color2[2]-color1[2])*((diff-(time-LT))/diff))
     screen.fill((value1, value2, value3))
 
+#Level functions
+def damageCheck(lives):
+    if lives == 3:
+        pygame.draw.rect(screen, "blue", player)
+    elif lives == 2:
+        pygame.draw.rect(screen, "yellow", player)
+    elif lives == 1:
+        pygame.draw.rect(screen, "dark red", player)
+    else:
+        player.centerx = width / 2
+        player.centery = height / 2
+        print("You died")
+
+def invCheck(lives, INVT, LT, player_mask):
+    # Handle invincibility
+    if INVT <= LT:
+        for i in RectEnemies:
+            if player.colliderect(i[0]):
+                lives -= 1
+                INVT = LT + 120
+        for i in ExplodeEnemies:
+            if player.colliderect(i[0]):
+                lives -= 1
+                INVT = LT + 120
+        for i in LaserEnemies:
+            if player.colliderect(i[0]) and i[4]:
+                lives -= 1
+                INVT = LT + 120
+        # LAG FIX HERE
+        if LT % 30 == 0:
+            for i in SpinEnemies:
+                rotated = pygame.transform.rotate(i[0], i[5])
+                rect = rotated.get_rect(center=(i[1], i[2]))
+                mask = pygame.mask.from_surface(rotated)
+                offset = (player.x - rect.x, player.y - rect.y)
+                if mask.overlap(player_mask, offset) and i[10]:
+                    lives -= 1
+                    INVT = LT + 120
+    return lives, INVT
+
+def keyBinds(paused, LT):
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+            elif event.key == pygame.K_p:
+                if paused:
+                    pygame.mixer.music.unpause()
+                    return False
+                else:
+                    pygame.mixer.music.pause()
+                    drawText(font, "Game Paused", "white", 550, 340, 255)
+                    pygame.display.flip()
+                    return True
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                print("Frame #: " + str(LT))
+    return paused
+
+#Levels
 def level_1():
     pygame.mixer.music.stop()
-    gameOver=False
-    RectEnemies = []
+
     volume = 0.0
     bpm = 132
     activeMusic = False
@@ -100,7 +240,6 @@ def level_1():
 
     INVT = 0
     fading = False
-    vx, vy = 0, 0
     fpb = 3600/bpm
     lives=3
     inv = False
@@ -126,31 +265,11 @@ def level_1():
     refBeat = [start, start+round(16*3600/bpm), start+round(32*fpb), start+round(48*3600/bpm),
                start+round(56*fpb), start+round(64*fpb), start+round(96*fpb)]
 
-    while not gameOver:
-        #Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                elif event.key == pygame.K_p:
-                    if paused:
-                        paused = False
-                        pygame.mixer.music.unpause()
-                    else:
-                        paused = True
-                        pygame.mixer.music.pause()
-                        drawText(font, "Game Paused", "white", 550, 340, 255)
-                        pygame.display.flip()
-
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    print("Frame #: " + str(LT))
+    while not lives==0:
+        # Handle events
+        paused = keyBinds(paused, LT)
 
         #Core game code
-
         if not paused:
             screen.fill("black")
             #Fading text
@@ -175,14 +294,9 @@ def level_1():
                 pygame.mixer.music.set_volume(volume)
                 if volume >= 1.0:
                     fading = True
-            i = 0
-            while i < len(RectEnemies):
-                RectEnemies[i][0] = moveObject(RectEnemies[i][0], RectEnemies[i][1], RectEnemies[i][2])
-                if RectEnemies[i][0].x < 0 - RectEnemies[i][0].width or RectEnemies[i][0].x > 1280:
-                    RectEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "red", RectEnemies[i][0])
-                i += 1
+
+            # Handle enemy logic
+            enemyLogic(LT)
 
             # Enemies start here
             for i, j in zip(beats1, pos1):
@@ -214,38 +328,20 @@ def level_1():
             # Enemies end here
 
             #Player movement
-            if 0 < player.x < 1260: player.x += vx
-            if 0 < player.y < 700: player.y -= vy
             movePlayer(player)
 
             #I frames
-            if INVT <= LT:
-                inv = False
-            for i in RectEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives-=1
-                    inv = True
-                    INVT = LT+120
+            lives, INVT = invCheck(lives, INVT, LT, None)
 
             #End of level
             if(LT>=start+round(144*fpb)):
                 player.centerx = width / 2
                 player.centery = height / 2
-                gameOver=True
+                lives=0
                 print("You win")
 
             #Damage taken
-            if lives==3:
-                pygame.draw.rect(screen, "blue", player)
-            elif lives==2:
-                pygame.draw.rect(screen, "yellow", player)
-            elif lives==1:
-                pygame.draw.rect(screen, "dark red", player)
-            else:
-                player.centerx=width/2
-                player.centery=height/2
-                gameOver = True
-                print("You died")
+            damageCheck(lives)
 
             #Ticks and Display
             pygame.display.flip()
@@ -254,9 +350,6 @@ def level_1():
 
 def level_2():
     pygame.mixer.music.stop()
-    gameOver = False
-    RectEnemies = []
-    ExplodeEnemies = []
     volume = 0.0
     bpm = 174
     activeMusic = False
@@ -270,7 +363,6 @@ def level_2():
 
     INVT = 0
     fading = False
-    vx, vy = 0, 0
     fpb = 3600 / bpm
     lives = 3
     inv = False
@@ -299,30 +391,11 @@ def level_2():
                start + round(144*fpb), start + round(160*fpb), start + round(176*fpb), start + round(192*fpb),
                start + round(224*fpb), start + round(272*fpb)]
 
-    while not gameOver:
+    while not lives==0:
         # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                elif event.key == pygame.K_p:
-                    if paused:
-                        paused = False
-                        pygame.mixer.music.unpause()
-                    else:
-                        paused = True
-                        pygame.mixer.music.pause()
-                        drawText(font, "Game Paused", "white", 550, 340, 255)
-                        pygame.display.flip()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    print("Frame #: " + str(LT))
+        paused = keyBinds(paused, LT)
 
         # Core game code
-
         if not paused:
             screen.fill("black")
 
@@ -348,27 +421,10 @@ def level_2():
                 pygame.mixer.music.set_volume(volume)
                 if volume >= 1.0:
                     fading = True
-            i = 0
-            while i < len(RectEnemies):
-                RectEnemies[i][0] = moveObject(RectEnemies[i][0], RectEnemies[i][1], RectEnemies[i][2])
-                if RectEnemies[i][0].x < 0 - RectEnemies[i][0].width or RectEnemies[i][0].x > 1280 or RectEnemies[i][0].y < 0 - RectEnemies[i][0].height or RectEnemies[i][0].y > 720 :
-                    RectEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "red", RectEnemies[i][0])
-                i += 1
-            i=0
-            while i < len(ExplodeEnemies):
-                ExplodeEnemies[i][0] = moveObject(ExplodeEnemies[i][0], ExplodeEnemies[i][1], ExplodeEnemies[i][2])
-                if ExplodeEnemies[i][3]==LT:
-                    for j in range(1, ExplodeEnemies[i][4][3]+1):
-                        RectEnemies.append(generateBasic(ExplodeEnemies[i][0].centerx, ExplodeEnemies[i][0].centery,
-                                                         ExplodeEnemies[i][4][0], ExplodeEnemies[i][4][1],
-                                                         round(ExplodeEnemies[i][4][2]*math.cos(2*math.pi*j/ExplodeEnemies[i][4][3])),
-                                                         round(ExplodeEnemies[i][4][2]*math.sin(2*math.pi*j/ExplodeEnemies[i][4][3]))))
-                    ExplodeEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "orange", ExplodeEnemies[i][0])
-                i += 1
+
+            # Handle enemy logic
+            enemyLogic(LT)
+
             # Enemies start here
             for i in beats1:
                 if LT == refBeat[0] + i:
@@ -435,43 +491,20 @@ def level_2():
             # Enemies end here
 
             # Player movement
-            if player.x > 0 and player.x < 1260: player.x += vx
-            if player.y > 0 and player.y < 700: player.y -= vy
             movePlayer(player)
 
             # I frames
-            if INVT <= LT:
-                inv = False
-            for i in RectEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
-            for i in ExplodeEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
+            lives, INVT = invCheck(lives, INVT, LT, None)
 
             # End of level
             if LT >= start + round(340 * fpb):
                 player.centerx = width / 2
                 player.centery = height / 2
-                gameOver = True
+                lives=0
                 print("You win")
 
             # Damage taken
-            if lives == 3:
-                pygame.draw.rect(screen, "blue", player)
-            elif lives == 2:
-                pygame.draw.rect(screen, "yellow", player)
-            elif lives == 1:
-                pygame.draw.rect(screen, "dark red", player)
-            else:
-                player.centerx = width / 2
-                player.centery = height / 2
-                gameOver = True
-                print("You died")
+            damageCheck(lives)
 
             # Ticks and Display
             pygame.display.flip()
@@ -484,17 +517,11 @@ def level_3():
 
 def level_4():
     pygame.mixer.music.stop()
-    gameOver = False
-    RectEnemies = []
-    ExplodeEnemies = []
-    LaserEnemies = []
-    SpinEnemies = []
     volume = 0.0
     bpm = 133
     activeMusic = False
     start = 300
     switch = True
-    switch2 = True
     flashing = False
     time = 0
     diff = 0
@@ -503,11 +530,10 @@ def level_4():
 
     # When running, set LT = 0
     # When debugging, set LT >= 0
-    LT = 3000
+    LT = 0
 
     INVT = 0
     fading = False
-    vx, vy = 0, 0
     fpb = 3600 / bpm
     lives = 3
     inv = False
@@ -524,31 +550,12 @@ def level_4():
     refBeat = [start, start + round(64*fpb), start + round(96*fpb), start + round(128*fpb),
                start + round(160*fpb), start + round(192*fpb)]
     player_mask = pygame.Mask(player.size, fill=True)
-    while not gameOver:
+    while not lives==0:
 
         # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                elif event.key == pygame.K_p:
-                    if paused:
-                        paused = False
-                        pygame.mixer.music.unpause()
-                    else:
-                        paused = True
-                        pygame.mixer.music.pause()
-                        drawText(font, "Game Paused", "white", 550, 340, 255)
-                        pygame.display.flip()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    print("Frame #: " + str(LT))
+        paused = keyBinds(paused, LT)
 
         # Core game code
-
         if not paused:
             if not flashing:
                 screen.fill(color1)
@@ -573,78 +580,15 @@ def level_4():
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
-                    pygame.mixer.music.set_pos((LT-start)/60)
-                    volume = 1.0
+                    #pygame.mixer.music.set_pos((LT-start)/60)
+                    #volume = 1.0
                 volume = min(1.0, volume + 0.05)
                 pygame.mixer.music.set_volume(volume)
                 if volume >= 1.0:
                     fading = True
 
-            # Enemies logic start
-            i = len(LaserEnemies) - 1
-            #[pygame.rect.Rect(x, y, w, h), LT, t, warn, False]
-            while i > -1:
-                if LaserEnemies[i][1] == LT:
-                    LaserEnemies[i][4] = True
-                elif LaserEnemies[i][1] + LaserEnemies[i][2] == LT:
-                    LaserEnemies.pop(i)
-                    i -= 1
-                    continue
-                if LT < LaserEnemies[i][1]:
-                    pygame.draw.rect(screen, "pink", LaserEnemies[i][0])
-                else:
-                    pygame.draw.rect(screen, "red", LaserEnemies[i][0])
-                i -= 1
-
-            i = len(SpinEnemies) - 1
-            # [surface, cx, cy, vx, vy, a, da, LT, t, warn, False]
-            while i > -1:
-                if SpinEnemies[i][7] == LT:
-                    SpinEnemies[i][10] = True
-                elif SpinEnemies[i][7] + SpinEnemies[i][8] == LT:
-                    SpinEnemies.pop(i)
-                    i -= 1
-                    continue
-                if LT < SpinEnemies[i][7]:
-                    SpinEnemies[i][0].fill("pink")
-                else:
-                    SpinEnemies[i][0].fill("red")
-                SpinEnemies[i][1] += SpinEnemies[i][3]
-                SpinEnemies[i][2] += SpinEnemies[i][4]
-                SpinEnemies[i][5] += SpinEnemies[i][6]
-
-                # Rotate and draw
-                rotated = pygame.transform.rotate(SpinEnemies[i][0], SpinEnemies[i][5])
-                rotated_rect = rotated.get_rect(center=(SpinEnemies[i][1], SpinEnemies[i][2]))
-                screen.blit(rotated, rotated_rect.topleft)
-                i -= 1
-            i = 0
-            while i < len(RectEnemies):
-                RectEnemies[i][0] = moveObject(RectEnemies[i][0], RectEnemies[i][1], RectEnemies[i][2])
-                if (RectEnemies[i][0].x < 0 - RectEnemies[i][0].width and RectEnemies[i][1] < 0 or
-                        RectEnemies[i][0].x > 1280 and RectEnemies[i][1] > 0 or
-                        RectEnemies[i][0].y < 0 - RectEnemies[i][0].height and RectEnemies[i][2] > 0 or
-                        RectEnemies[i][0].y > 720 and RectEnemies[i][2] < 0):
-                    RectEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "red", RectEnemies[i][0])
-                i += 1
-            i = 0
-            while i < len(ExplodeEnemies):
-                ExplodeEnemies[i][0] = moveObject(ExplodeEnemies[i][0], ExplodeEnemies[i][1], ExplodeEnemies[i][2])
-                if ExplodeEnemies[i][3] == LT:
-                    for j in range(1, ExplodeEnemies[i][4][3] + 1):
-                        RectEnemies.append(generateBasic(ExplodeEnemies[i][0].centerx, ExplodeEnemies[i][0].centery,
-                                                         ExplodeEnemies[i][4][0], ExplodeEnemies[i][4][1],
-                                                         round(ExplodeEnemies[i][4][2] * math.cos(
-                                                             2 * math.pi * j / ExplodeEnemies[i][4][3])),
-                                                         round(ExplodeEnemies[i][4][2] * math.sin(
-                                                             2 * math.pi * j / ExplodeEnemies[i][4][3]))))
-                    ExplodeEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "orange", ExplodeEnemies[i][0])
-                i += 1
-            # Enemies logic ends
+            # Handle enemy logic
+            enemyLogic(LT)
 
             # Enemies start here
             if LT == refBeat[0] - round(2 * fpb):
@@ -791,59 +735,20 @@ def level_4():
             # Enemies end here
 
             # Player movement
-            if player.x > 0 and player.x < 1260: player.x += vx
-            if player.y > 0 and player.y < 700: player.y -= vy
             movePlayer(player)
 
             # I frames
-            if INVT <= LT:
-                inv = False
-            for i in RectEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
-            for i in ExplodeEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
-            for i in LaserEnemies:
-                if player.colliderect(i[0]) and i[4] and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
-            #LAG FIX HERE
-            if LT%30==0 and not inv:
-                for i in SpinEnemies:
-                    rotated = pygame.transform.rotate(i[0], i[5])
-                    rect = rotated.get_rect(center=(i[1], i[2]))
-                    mask = pygame.mask.from_surface(rotated)
-                    offset = (player.x - rect.x, player.y - rect.y)
-                    if mask.overlap(player_mask, offset) and i[10] and not inv:
-                        lives -= 1
-                        inv = True
-                        INVT = LT + 120
+            lives, INVT = invCheck(lives, INVT, LT, player_mask)
 
             # End of level
             if LT >= start + round(256 * fpb):
                 player.centerx = width / 2
                 player.centery = height / 2
-                gameOver = True
+                lives=0
                 print("You win")
 
             # Damage taken
-            if lives == 3:
-                pygame.draw.rect(screen, "blue", player)
-            elif lives == 2:
-                pygame.draw.rect(screen, "yellow", player)
-            elif lives == 1:
-                pygame.draw.rect(screen, "dark red", player)
-            else:
-                player.centerx = width / 2
-                player.centery = height / 2
-                gameOver = True
-                print("You died")
+            damageCheck(lives)
 
             # Ticks and Display
             pygame.display.flip()
@@ -852,10 +757,6 @@ def level_4():
 
 def level_5():
     pygame.mixer.music.stop()
-    gameOver = False
-    RectEnemies = []
-    ExplodeEnemies = []
-    LaserEnemies = []
     volume = 0.0
     bpm = 183
     activeMusic = False
@@ -873,7 +774,6 @@ def level_5():
 
     INVT = 0
     fading = False
-    vx, vy = 0, 0
     fpb = 3600 / bpm
     lives = 3
     inv = False
@@ -897,30 +797,11 @@ def level_5():
                start + round(144*fpb), start + round(176*fpb), start + round(212*fpb), start + round(244*fpb),
                start + round(276*fpb), start + round(308*fpb)]
 
-    while not gameOver:
+    while not lives==0:
         # Handle events
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
-                elif event.key == pygame.K_p:
-                    if paused:
-                        paused = False
-                        pygame.mixer.music.unpause()
-                    else:
-                        paused = True
-                        pygame.mixer.music.pause()
-                        drawText(font, "Game Paused", "white", 550, 340, 255)
-                        pygame.display.flip()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
-                    print("Frame #: " + str(LT))
+        paused = keyBinds(paused, LT)
 
         # Core game code
-
         if not paused:
             if not flashing:
                 screen.fill(color1)
@@ -952,47 +833,8 @@ def level_5():
                 if volume >= 1.0:
                     fading = True
 
-            #Enemies logic start
-            i = len(LaserEnemies) - 1
-            while i > -1:
-                if LaserEnemies[i][1] == LT:
-                    LaserEnemies[i][4] = True
-                elif LaserEnemies[i][1] + LaserEnemies[i][2] == LT:
-                    LaserEnemies.pop(i)
-                    i -= 1
-                    continue
-                if LT < LaserEnemies[i][1]:
-                    pygame.draw.rect(screen, "pink", LaserEnemies[i][0])
-                else:
-                    pygame.draw.rect(screen, "red", LaserEnemies[i][0])
-                i -= 1
-            i = 0
-            while i < len(RectEnemies):
-                RectEnemies[i][0] = moveObject(RectEnemies[i][0], RectEnemies[i][1], RectEnemies[i][2])
-                if (RectEnemies[i][0].x < 0 - RectEnemies[i][0].width and RectEnemies[i][1]<0 or
-                    RectEnemies[i][0].x > 1280 and RectEnemies[i][1]>0 or
-                    RectEnemies[i][0].y < 0 - RectEnemies[i][0].height and RectEnemies[i][2]>0 or
-                    RectEnemies[i][0].y > 720 and RectEnemies[i][2]<0):
-                    RectEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "red", RectEnemies[i][0])
-                i += 1
-            i = 0
-            while i < len(ExplodeEnemies):
-                ExplodeEnemies[i][0] = moveObject(ExplodeEnemies[i][0], ExplodeEnemies[i][1], ExplodeEnemies[i][2])
-                if ExplodeEnemies[i][3] == LT:
-                    for j in range(1, ExplodeEnemies[i][4][3] + 1):
-                        RectEnemies.append(generateBasic(ExplodeEnemies[i][0].centerx, ExplodeEnemies[i][0].centery,
-                                                         ExplodeEnemies[i][4][0], ExplodeEnemies[i][4][1],
-                                                         round(ExplodeEnemies[i][4][2] * math.cos(
-                                                             2 * math.pi * j / ExplodeEnemies[i][4][3])),
-                                                         round(ExplodeEnemies[i][4][2] * math.sin(
-                                                             2 * math.pi * j / ExplodeEnemies[i][4][3]))))
-                    ExplodeEnemies.pop(i)
-                    continue
-                pygame.draw.rect(screen, "orange", ExplodeEnemies[i][0])
-                i += 1
-            #Enemies logic ends
+            # Handle enemy logic
+            enemyLogic(LT)
 
             # Enemies start here
             for i in beats1:
@@ -1173,49 +1015,22 @@ def level_5():
                 time = LT + round(4 * fpb)
                 diff = time-LT
             # Enemies end here
+
             # Player movement
-            if player.x > 0 and player.x < 1260: player.x += vx
-            if player.y > 0 and player.y < 700: player.y -= vy
             movePlayer(player)
 
             # I frames
-            if INVT <= LT:
-                inv = False
-            for i in RectEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
-            for i in ExplodeEnemies:
-                if player.colliderect(i[0]) and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
-            for i in LaserEnemies:
-                if player.colliderect(i[0]) and i[4] and not inv:
-                    lives -= 1
-                    inv = True
-                    INVT = LT + 120
+            lives, INVT = invCheck(lives, INVT, LT, None)
 
             # End of level
             if LT >= start + round(316 * fpb):
                 player.centerx = width / 2
                 player.centery = height / 2
-                gameOver = True
+                lives=0
                 print("You win")
 
             # Damage taken
-            if lives == 3:
-                pygame.draw.rect(screen, "blue", player)
-            elif lives == 2:
-                pygame.draw.rect(screen, "yellow", player)
-            elif lives == 1:
-                pygame.draw.rect(screen, "dark red", player)
-            else:
-                player.centerx = width / 2
-                player.centery = height / 2
-                gameOver = True
-                print("You died")
+            damageCheck(lives)
 
             # Ticks and Display
             pygame.display.flip()
@@ -1225,7 +1040,7 @@ def level_5():
 pygame.mixer.music.load(RectLobbyMusic)
 pygame.mixer.music.play(0)
 
-#Main condition
+#Main lobby
 while True:
     screen.fill("black")
     for event in pygame.event.get():
@@ -1235,7 +1050,11 @@ while True:
                 pygame.quit()
                 sys.exit()
             if event.key == pygame.K_RETURN:
-                if screenNumber==2 and not activeMusic is None and not busyFading:
+                if screenID==2 and not activeMusic is None and not busyFading:
+                    RectEnemies.clear()
+                    ExplodeEnemies.clear()
+                    LaserEnemies.clear()
+                    SpinEnemies.clear()
                     if activeMusic==0:
                         level_1()
                         fading = True
