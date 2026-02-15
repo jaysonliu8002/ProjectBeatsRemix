@@ -31,7 +31,6 @@ ExplodeEnemies = []
 LaserEnemies = []
 SpinEnemies = []
 
-#Work in progress
 def enemyLogic(LT):
     global RectEnemies
     global ExplodeEnemies
@@ -183,14 +182,17 @@ def invCheck(lives, INVT, LT, player_mask):
             if player.colliderect(i[0]):
                 lives -= 1
                 INVT = LT + 120
+                break
         for i in ExplodeEnemies:
             if player.colliderect(i[0]):
                 lives -= 1
                 INVT = LT + 120
+                break
         for i in LaserEnemies:
             if player.colliderect(i[0]) and i[4]:
                 lives -= 1
                 INVT = LT + 120
+                break
         # LAG FIX HERE
         if LT % 30 == 0:
             for i in SpinEnemies:
@@ -201,6 +203,7 @@ def invCheck(lives, INVT, LT, player_mask):
                 if mask.overlap(player_mask, offset) and i[10]:
                     lives -= 1
                     INVT = LT + 120
+                    break
     return lives, INVT
 
 def keyBinds(paused, LT):
