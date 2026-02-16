@@ -1,4 +1,4 @@
-import sys, pygame, math, random, os
+import sys, pygame, math, random
 
 #initialize program
 pygame.init()
@@ -20,6 +20,7 @@ fading = True
 fade_speed = 0.05
 volume = 1.0
 pygame.mixer.music.set_volume(volume)
+musicFolder = 'Music/'
 RectLobbyMusic = 'StartTheStars.mp3'
 
 #Text and related
@@ -287,7 +288,7 @@ def level_1():
                     drawText(font, "Ryu Nagamatsu & Asuka Ohta", "white", 830, 650, 255)
             if LT >= start-20 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load('CoconutMall.mp3')
+                    pygame.mixer.music.load(musicFolder + 'CoconutMall.mp3')
                     pygame.mixer.music.play(0)
                     #Debug set song position
                     #Remove/Comment below two lines when running
@@ -414,7 +415,7 @@ def level_2():
                     drawText(font, "Chipzel", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load('Focus.mp3')
+                    pygame.mixer.music.load(musicFolder + 'Focus.mp3')
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -515,7 +516,7 @@ def level_2():
             LT += 1
 
 def level_3():
-    pygame.mixer.music.load('Chronos.mp3')
+    pygame.mixer.music.load(musicFolder + 'Chronos.mp3')
     pygame.mixer.music.play(0)
 
 def level_4():
@@ -579,7 +580,7 @@ def level_4():
                     drawText(font, "Big Giant Circles", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load('Sevcon.mp3')
+                    pygame.mixer.music.load(musicFolder + 'Sevcon.mp3')
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -825,7 +826,7 @@ def level_5():
                     drawText(font, "Bossfight", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load('MilkyWays.mp3')
+                    pygame.mixer.music.load(musicFolder + 'MilkyWays.mp3')
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -1040,7 +1041,7 @@ def level_5():
             fps.tick(60)
             LT += 1
 
-pygame.mixer.music.load(RectLobbyMusic)
+pygame.mixer.music.load(musicFolder + RectLobbyMusic)
 pygame.mixer.music.play(0)
 
 #Main lobby
@@ -1102,10 +1103,10 @@ while True:
             break
     if musicIndex != activeMusic or busyFading:
         if musicIndex is None and musicIndex != activeMusic and not fading:
-            pygame.mixer.music.load(RectLobbyMusic)
+            pygame.mixer.music.load(musicFolder + RectLobbyMusic)
             pygame.mixer.music.play(0)
         elif musicIndex != activeMusic and not fading:
-            pygame.mixer.music.load(RectLevelMusic[musicIndex][1])
+            pygame.mixer.music.load(musicFolder + RectLevelMusic[musicIndex][1])
             pygame.mixer.music.play(0)
         if fading:
             busyFading = True
