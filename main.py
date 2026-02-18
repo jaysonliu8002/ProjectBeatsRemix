@@ -30,41 +30,56 @@ font = pygame.font.Font(None, 40)
 RectEnemies = []
 ExplodeEnemies = []
 LaserEnemies = []
+GlideEnemies = []
 SpinEnemies = []
 
 def enemyLogic(LT):
     global RectEnemies
     global ExplodeEnemies
     global LaserEnemies
+    global GlideEnemies
     global SpinEnemies
+
     i = len(LaserEnemies) - 1
     # [pygame.rect.Rect(x, y, w, h), LT, t, warn, False]
     while i > -1:
-        if LaserEnemies[i][1] == LT:
-            LaserEnemies[i][4] = True
-        elif LaserEnemies[i][1] + LaserEnemies[i][2] == LT:
+        if LaserEnemies[i][1] + LaserEnemies[i][2] == LT:
             LaserEnemies.pop(i)
             i -= 1
             continue
-        if LT < LaserEnemies[i][1]:
+        elif LaserEnemies[i][1] - LaserEnemies[i][3] <= LT < LaserEnemies[i][1]:
             pygame.draw.rect(screen, "pink", LaserEnemies[i][0])
-        else:
+        elif LT >= LaserEnemies[i][1]:
             pygame.draw.rect(screen, "red", LaserEnemies[i][0])
+            LaserEnemies[i][4] = True
         i -= 1
 
+    i = len(GlideEnemies) - 1
+    # [pygame.rect.Rect(x, y, w, h), pygame.rect.Rect(x2, y2, w, h), LT, dur, warn, vx, vy, t]
+    while i > -1:
+        if GlideEnemies[i][2] + GlideEnemies[i][3] == LT:
+            GlideEnemies.pop(i)
+            i -= 1
+            continue
+        if GlideEnemies[i][2] - GlideEnemies[i][3] <= LT < GlideEnemies[i][2] + GlideEnemies[i][7]:
+            pygame.draw.rect(screen, "pink", GlideEnemies[i][0])
+        if GlideEnemies[i][2] <= LT < GlideEnemies[i][2] + GlideEnemies[i][7]:
+            GlideEnemies[i][1] = moveObject(GlideEnemies[i][1], GlideEnemies[i][5], GlideEnemies[i][6])
+        pygame.draw.rect(screen, "red", GlideEnemies[i][1])
+        i -= 1
     i = len(SpinEnemies) - 1
+
     # [surface, cx, cy, vx, vy, a, da, LT, t, warn, False]
     while i > -1:
-        if SpinEnemies[i][7] == LT:
-            SpinEnemies[i][10] = True
-        elif SpinEnemies[i][7] + SpinEnemies[i][8] == LT:
+        if SpinEnemies[i][7] + SpinEnemies[i][8] == LT:
             SpinEnemies.pop(i)
             i -= 1
             continue
-        if LT < SpinEnemies[i][7]:
+        elif SpinEnemies[i][7] - SpinEnemies[i][9] <= LT < SpinEnemies[i][7]:
             SpinEnemies[i][0].fill("pink")
-        else:
+        elif LT >= SpinEnemies[i][7]:
             SpinEnemies[i][0].fill("red")
+            SpinEnemies[i][10] = True
         SpinEnemies[i][1] += SpinEnemies[i][3]
         SpinEnemies[i][2] += SpinEnemies[i][4]
         SpinEnemies[i][5] += SpinEnemies[i][6]
@@ -102,18 +117,26 @@ def enemyLogic(LT):
         i += 1
 
 #Screen 2
-RectLevelSelect = [pygame.rect.Rect(width/4, height/3, 2*width/4, height/3),
-                   pygame.rect.Rect(0, 0, width/4, height/3),
-                   pygame.rect.Rect(3*width/4, height/3, width/4, height/3),
-                   pygame.rect.Rect(0, 2*height/3, width / 4, height / 3),
-                   pygame.rect.Rect(width / 4, 2*height/3, width / 4, height / 3),
-                   pygame.rect.Rect(width / 2, 2*height/3, width / 4, height / 3),
-                   pygame.rect.Rect(3 * width / 4, 2*height/3, width / 4, height / 3)]
-RectLevelMusic = [[pygame.rect.Rect(0, 0, width/4, height/3), 'CoconutMall.mp3'],
-             [pygame.rect.Rect(width/4, 0, width/4, height/3), 'Focus.mp3'],
-             [pygame.rect.Rect(width/2, 0, width/4, height/3), 'Chronos.mp3'],
-             [pygame.rect.Rect(3*width/4, 0, width/4, height/3), 'Sevcon.mp3'],
-             [pygame.rect.Rect(0, height/3, width/4, height/3), 'MilkyWays.mp3']]
+RectLevelSelect = [pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3),
+                  pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3),
+                  pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3),
+                  pygame.rect.Rect(3*width/4, 0*height/3, width/4, height/3),
+
+                  pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3),
+                  pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3)]
+
+RectLevelMusic = [[pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3), 'CoconutMall.mp3'],
+                  [pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3), 'Focus.mp3'],
+                  [pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3), 'Tetris.mp3'],
+                  [pygame.rect.Rect(3*width/4, 0*height/3, width/4, height/3), 'Sevcon.mp3'],
+
+                  [pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3), 'MilkyWays.mp3'],
+                  [pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3), 'Chronos.mp3'],
+
+                  [pygame.rect.Rect(0*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],
+                  [pygame.rect.Rect(1*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],
+                  [pygame.rect.Rect(2*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],
+                  [pygame.rect.Rect(3*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],]
 
 #Global gravity
 Gvx, Gvy = 0, 0
@@ -127,13 +150,14 @@ def drawText(font, text, color, x, y, alpha):
     screen.blit(surface, (x, y))
 
 def movePlayer(player):
+    if Gvx > 0 and player.x < 1260 or Gvx < 0 and player.x > 0: player.x += Gvx
+    if Gvy > 0 and player.y > 0 or Gvy < 0 and player.y < 700: player.y -= Gvy
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w] and player.y > 0: player.y -= speed
-    if keys[pygame.K_a] and player.x > 0: player.x -= speed
-    if keys[pygame.K_s] and player.y < 700: player.y += speed
-    if keys[pygame.K_d] and player.x < 1260: player.x += speed
-    if 0 < player.x < 1260: player.x += Gvx
-    if 0 < player.y < 700: player.y -= Gvy
+    if keys[pygame.K_w]: player.y = max(0, player.y - speed)
+    if keys[pygame.K_a]: player.x = max(0, player.x - speed)
+    if keys[pygame.K_s]: player.y = min(700, player.y + speed)
+    if keys[pygame.K_d]: player.x = min(1260, player.x + speed)
+
 
 def moveObject(rect, vx, vy):
     rect.x += vx
@@ -148,11 +172,14 @@ def generateBasic(x, y, w, h, vx, vy):
 def generateLaser(x, y, w, h, LT, t, warn):
     return [pygame.rect.Rect(x, y, w, h), LT, t, warn, False]
 
+def generateGliding(x, y, w, h, LT, dur, warn, x2, y2, vx, vy, t):
+    return [pygame.rect.Rect(x, y, w, h), pygame.rect.Rect(x2, y2, w, h), LT, dur, warn, vx, vy, t]
+
 #Generates an exploding enemy into n different enemies
 def generateExploding(x, y, w, h, vx, vy, LT, ew, eh, ev, n):
     return [pygame.rect.Rect(x, y, w, h), vx, vy, LT, (ew, eh, ev, n)]
 
-
+#Generates a spinning enemy
 def generateSpinning(cx, cy, w, h, vx, vy, a, da, LT, t, warn):
     surface = pygame.Surface((w, h), pygame.SRCALPHA)
     return [surface, cx, cy, vx, vy, a, da, LT, t, warn, False]
@@ -194,6 +221,12 @@ def invCheck(lives, INVT, LT, player_mask):
                 lives -= 1
                 INVT = LT + 120
                 break
+        for i in GlideEnemies:
+            if player.colliderect(i[1]):
+                lives -= 1
+                INVT = LT + 120
+                break
+
         # LAG FIX HERE
         if LT % 30 == 0:
             for i in SpinEnemies:
@@ -241,12 +274,10 @@ def level_1():
     # When running, set LT = 0
     # When debugging, set LT >= 0
     LT = 0
-
     INVT = 0
     fading = False
     fpb = 3600/bpm
     lives=3
-    inv = False
     paused = False
 
     #Use aprox values
@@ -364,12 +395,10 @@ def level_2():
     # When running, set LT = 0
     # When debugging, set LT >= 0
     LT = 0
-
     INVT = 0
     fading = False
     fpb = 3600 / bpm
     lives = 3
-    inv = False
     paused = False
 
     # Use aprox values
@@ -516,8 +545,139 @@ def level_2():
             LT += 1
 
 def level_3():
-    pygame.mixer.music.load(musicFolder + 'Chronos.mp3')
-    pygame.mixer.music.play(0)
+    pygame.mixer.music.stop()
+    volume = 0.0
+    bpm = 143
+    activeMusic = False
+    start = 300
+    switch = True
+    flashing = False
+    time = 0
+    diff = 0
+    color1 = (0, 0, 0)
+    color2 = (0, 0, 0)
+    global Gvx, Gvy
+
+    # When running, set LT = 0
+    # When debugging, set LT >= 0
+    LT = 0
+
+    INVT = 0
+    fading = False
+    fpb = 3600 / bpm
+    lives = 3
+    
+    paused = False
+
+    # Use aprox values
+    beats1 = [round(i * fpb) for i in range(22)]
+    beats2 = [round(i * fpb * 4) for i in range(7)]
+    beats3 = [round(i * fpb / 2) for i in range(54)]
+
+    # Use precise values
+    refBeat = [start, start + round(26 * fpb), start + round(58 * fpb), start + round(90 * fpb)]
+    player_mask = pygame.Mask(player.size, fill=True)
+    while not lives == 0:
+
+        # Handle events
+        paused = keyBinds(paused, LT)
+
+        # Core game code
+        if not paused:
+            if not flashing:
+                screen.fill(color1)
+            else:
+                transitionColor(LT, time, diff, color1, color2)
+                if LT >= time:
+                    flashing = False
+                    color1 = color2
+            # Fading text
+            if LT <= 240:
+                fs, fe = 180, 240
+                if fs <= LT <= fe:
+                    alpha = 255 * (1 - (LT - fs) / (fe - fs))
+                    drawText(font, "Tetris", "white", 830, 600, alpha)
+                    drawText(font, "Cheetah Mobile", "white", 830, 650, alpha)
+                elif LT < fs:
+                    drawText(font, "Tetris", "white", 830, 600, 255)
+                    drawText(font, "Cheetah Mobile", "white", 830, 650, 255)
+            if LT >= start - 25 and not fading:
+                if not activeMusic:
+                    pygame.mixer.music.load(musicFolder + 'Tetris.mp3')
+                    pygame.mixer.music.play(0)
+                    # Debug set song position
+                    # Remove/Comment below two lines when running
+                    # pygame.mixer.music.set_pos((LT-start)/60)
+                    # volume = 1.0
+                volume = min(1.0, volume + 0.05)
+                pygame.mixer.music.set_volume(volume)
+                if volume >= 1.0:
+                    fading = True
+
+            # Handle enemy logic
+            enemyLogic(LT)
+
+            #x, y, w, h, LT, dur, warn, x2, y2, vx, vy, t
+            # Enemies start here (WIP, temporary placeholder)
+            for i in beats1:
+                switch = random.randint(0, 1)
+                if LT == refBeat[0] + i:
+                    if switch:
+                        LaserEnemies.append(
+                            generateLaser(random.randint(0, 1230), 0, 50, 720, LT + round(2 * fpb), round(fpb),
+                                          round(2 * fpb)))
+                    else:
+                        LaserEnemies.append(
+                            generateLaser(0, random.randint(0, 670), 1280, 50, LT + round(2 * fpb), round(fpb),
+                                          round(2 * fpb)))
+            if LT == refBeat[1] - round(4 * fpb):
+                GlideEnemies.append(generateGliding(0, 0, 380, 720, LT + round(2 * fpb), round(64 * fpb),
+                                          round(2 * fpb), -380, 0, 10, 0, 38))
+                GlideEnemies.append(generateGliding(900, 0, 380, 720, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), 1280, 0, -10, 0, 38))
+                GlideEnemies.append(generateGliding(380, 0, 520, 20, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), 380, -20, 0, -1, 20))
+                GlideEnemies.append(generateGliding(380, 700, 520, 20, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), 380, 720, 0, 1, 20))
+            if LT == refBeat[1]:
+                Gvy=-3
+            for i in beats2:
+                if LT == refBeat[1] + i:
+                    LaserEnemies.append(
+                        generateLaser(0, random.randint(0, 520), 1280, 200, LT + round(2 * fpb), round(2 *fpb),
+                                      round(2 * fpb)))
+            if LT == refBeat[2]:
+                Gvy=0
+                Gvx=2
+            for i in beats3:
+                if LT == refBeat[2] + i:
+                    LaserEnemies.append(
+                        generateLaser(random.randint(380, 890), 0, 10, 720, LT + round(2 * fpb), round(fpb),
+                                      round(2 * fpb)))
+            if LT == refBeat[3]:
+                Gvx=0
+            # Enemies end here
+
+            # Player movement
+            movePlayer(player)
+
+            # I frames
+            lives, INVT = invCheck(lives, INVT, LT, player_mask)
+
+            # End of level
+            if LT >= start + round(100 * fpb):
+                player.centerx = width / 2
+                player.centery = height / 2
+                lives = 0
+                print("You win")
+
+            # Damage taken
+            damageCheck(lives)
+
+            # Ticks and Display
+            pygame.display.flip()
+            fps.tick(60)
+            LT += 1
 
 def level_4():
     pygame.mixer.music.stop()
@@ -535,12 +695,10 @@ def level_4():
     # When running, set LT = 0
     # When debugging, set LT >= 0
     LT = 0
-
     INVT = 0
     fading = False
     fpb = 3600 / bpm
     lives = 3
-    inv = False
     paused = False
 
     # Use aprox values
@@ -775,12 +933,10 @@ def level_5():
     # When running, set LT = 0
     # When debugging, set LT >= 0
     LT = 0
-
     INVT = 0
     fading = False
     fpb = 3600 / bpm
     lives = 3
-    inv = False
     paused = False
 
     # Use aprox values
@@ -1041,11 +1197,16 @@ def level_5():
             fps.tick(60)
             LT += 1
 
+def level_6():
+    pygame.mixer.music.load(musicFolder + 'Chronos.mp3')
+    pygame.mixer.music.play(0)
+
 pygame.mixer.music.load(musicFolder + RectLobbyMusic)
 pygame.mixer.music.play(0)
 
 #Main lobby
 while True:
+    Gvx=Gvy=0
     screen.fill("black")
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
@@ -1058,6 +1219,7 @@ while True:
                     RectEnemies.clear()
                     ExplodeEnemies.clear()
                     LaserEnemies.clear()
+                    GlideEnemies.clear()
                     SpinEnemies.clear()
                     if activeMusic==0:
                         level_1()
@@ -1073,6 +1235,7 @@ while True:
                         fading = True
                     elif activeMusic == 4:
                         level_5()
+                        fading = True
     movePlayer(player)
 
     for i in range(len(RectLevelSelect)):
@@ -1082,18 +1245,19 @@ while True:
     pygame.draw.rect(screen, "red", RectLevelMusic[2][0])
     pygame.draw.rect(screen, "pink", RectLevelMusic[3][0])
     pygame.draw.rect(screen, "navy", RectLevelMusic[4][0])
+    pygame.draw.rect(screen, "brown", RectLevelMusic[5][0])
     drawText(font, "Welcome to Project Beats Remix", "white", 430, 300, 255)
     drawText(font, "Go to a level and hit 'Enter' to play", "white", 420, 400, 255)
     drawText(font, "Level 1: Coconut Mall", "purple", 15, 100, 255)
-    drawText(font, "level 2: Focus", "yellow", 380, 100, 255)
-    drawText(font, "level 3: ???", "cyan", 670, 100, 255)
-    drawText(font, "level 4: Sevcon", "dark green", 1020, 100, 255)
-    drawText(font, "level 5: Milky Ways", "orange", 20, 340, 255)
-    drawText(font, "level 6: ???", "white", 1020, 340, 255)
-    drawText(font, "level 7: ???", "white", 20, 580, 255)
-    drawText(font, "level 8: ???", "white", 380, 580, 255)
-    drawText(font, "level 9: ???", "white", 670, 580, 255)
-    drawText(font, "level 10: ???", "white", 1020, 580, 255)
+    drawText(font, "Level 2: Focus", "yellow", 380, 100, 255)
+    drawText(font, "Level 3: Tetris", "cyan", 700, 100, 255)
+    drawText(font, "Level 4: Sevcon", "dark green", 1020, 100, 255)
+    drawText(font, "Level 5: Milky Ways", "orange", 20, 340, 255)
+    drawText(font, "Level 6: ???", "white", 1020, 340, 255)
+    drawText(font, "Level 7: ???", "white", 20, 580, 255)
+    drawText(font, "Level 8: ???", "white", 380, 580, 255)
+    drawText(font, "Level 9: ???", "white", 670, 580, 255)
+    drawText(font, "Level 10: ???", "white", 1020, 580, 255)
     pygame.draw.rect(screen, "blue", player)
 
     musicIndex = None
