@@ -23,6 +23,8 @@ Fixed Spin and Laser enemy code
 
 # Coming Soon:
 
+Website publish
+
 Level 3 full release with VFX
 
 **BOSS** level arriving soon...
