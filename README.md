@@ -1,4 +1,4 @@
-# ProjectBeatsRemix Version 0.2.6-alpha
+# ProjectBeatsRemix Version 0.2.7-alpha
 Basically a Pygame version of Just Shapes and Beats and Project Arrhythmia.
 
 Controls: WASD
@@ -7,24 +7,18 @@ Supported devices: Laptop, PC
 
 Important: Until I publish the project to the web, this project is intended to be run on PyCharm. You must add the interpreter and install the pygame package for this to work when prompted.
 
-# What's new: 2/17/2026
+# What's new: 3/12/2026
 
-📜Massive code rewrites for better readability
+📜The coordinate system has been standardized. The x-axis is normal, while the y-axis is now flipped around. 
 
-🌐New global gravity attribute
-
-Level 3 demo released for testing. You can contribute to the full development by sharing your thoughts in the discussion.
+🌐Level 3 music got a new REMIX. Enjoy more high-intensity experiences.
 
 # Bug fixes:
 
-Enemy overlapping order fixed: Higher priority enemies (e.g., basic) will override other enemies
-
-Fixed Spin and Laser enemy code
+Fixed critical errors due to gliding and spinning enemies. 
 
 # Coming Soon:
 
-Website publish
+Project Beats Remix will soon be published and available on the web...
 
-Level 3 full release with VFX
-
-**BOSS** level arriving soon...
+Level 3 completion with 5 new enemies...
