@@ -1,5 +1,5 @@
 import sys, pygame, math, random
-
+#Goal: Convert everything to flipped y axis
 #initialize program
 pygame.init()
 pygame.mixer.init()
@@ -61,9 +61,9 @@ def enemyLogic(LT):
             GlideEnemies.pop(i)
             i -= 1
             continue
-        if GlideEnemies[i][2] - GlideEnemies[i][3] <= LT < GlideEnemies[i][2] + GlideEnemies[i][7]:
+        elif GlideEnemies[i][2] - GlideEnemies[i][3] <= LT < GlideEnemies[i][2]:
             pygame.draw.rect(screen, "pink", GlideEnemies[i][0])
-        if GlideEnemies[i][2] <= LT < GlideEnemies[i][2] + GlideEnemies[i][7]:
+        elif GlideEnemies[i][2] <= LT < GlideEnemies[i][2] + GlideEnemies[i][7]:
             GlideEnemies[i][1] = moveObject(GlideEnemies[i][1], GlideEnemies[i][5], GlideEnemies[i][6])
         pygame.draw.rect(screen, "red", GlideEnemies[i][1])
         i -= 1
@@ -94,8 +94,8 @@ def enemyLogic(LT):
         RectEnemies[i][0] = moveObject(RectEnemies[i][0], RectEnemies[i][1], RectEnemies[i][2])
         if (RectEnemies[i][0].x < 0 - RectEnemies[i][0].width and RectEnemies[i][1] < 0 or
                 RectEnemies[i][0].x > 1280 and RectEnemies[i][1] > 0 or
-                RectEnemies[i][0].y < 0 - RectEnemies[i][0].height and RectEnemies[i][2] > 0 or
-                RectEnemies[i][0].y > 720 and RectEnemies[i][2] < 0):
+                RectEnemies[i][0].y < 0 - RectEnemies[i][0].height and RectEnemies[i][2] < 0 or
+                RectEnemies[i][0].y > 720 and RectEnemies[i][2] > 0):
             RectEnemies.pop(i)
             continue
         pygame.draw.rect(screen, "red", RectEnemies[i][0])
@@ -151,7 +151,7 @@ def drawText(font, text, color, x, y, alpha):
 
 def movePlayer(player):
     if Gvx > 0 and player.x < 1260 or Gvx < 0 and player.x > 0: player.x += Gvx
-    if Gvy > 0 and player.y > 0 or Gvy < 0 and player.y < 700: player.y -= Gvy
+    if Gvy < 0 and player.y > 0 or Gvy > 0 and player.y < 700: player.y += Gvy
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]: player.y = max(0, player.y - speed)
     if keys[pygame.K_a]: player.x = max(0, player.x - speed)
@@ -161,7 +161,7 @@ def movePlayer(player):
 
 def moveObject(rect, vx, vy):
     rect.x += vx
-    rect.y -= vy
+    rect.y += vy
     return rect
 
 #Generates a basic enemy
@@ -260,6 +260,8 @@ def keyBinds(paused, LT):
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 print("Frame #: " + str(LT))
+                print("M-Pos: ", pygame.mouse.get_pos())
+                print("P-Pos: ", player.centerx, player.centery)
     return paused
 
 #Levels
@@ -498,20 +500,20 @@ def level_2():
             for i in beats9:
                 if LT == refBeat[7] + i:
                     if switch:
-                        RectEnemies.append(generateBasic(0, -20, 800, 20, 0, -5))
+                        RectEnemies.append(generateBasic(0, -20, 800, 20, 0, 5))
                     else:
-                        RectEnemies.append(generateBasic(480, -20, 800, 20, 0, -5))
+                        RectEnemies.append(generateBasic(480, -20, 800, 20, 0, 5))
                     switch = not switch
             for i in beats10:
                 if LT == refBeat[8] + i:
                     if switch:
-                        RectEnemies.append(generateBasic(0, 720, 800, 20, 0, 5))
+                        RectEnemies.append(generateBasic(0, 720, 800, 20, 0, -5))
                     else:
-                        RectEnemies.append(generateBasic(480, 720, 800, 20, 0, 5))
+                        RectEnemies.append(generateBasic(480, 720, 800, 20, 0, -5))
                     switch = not switch
             for i in beats11:
                 if LT == refBeat[9] + i:
-                    RectEnemies.append(generateBasic(random.randint(0, 1230), -50, 50, 50, 0, -10))
+                    RectEnemies.append(generateBasic(random.randint(0, 1230), -50, 50, 50, 0, 10))
             for i in beats12:
                 if LT == refBeat[9] + i:
                     if switch:
@@ -561,12 +563,10 @@ def level_3():
     # When running, set LT = 0
     # When debugging, set LT >= 0
     LT = 0
-
     INVT = 0
     fading = False
     fpb = 3600 / bpm
     lives = 3
-    
     paused = False
 
     # Use aprox values
@@ -597,10 +597,10 @@ def level_3():
                 if fs <= LT <= fe:
                     alpha = 255 * (1 - (LT - fs) / (fe - fs))
                     drawText(font, "Tetris", "white", 830, 600, alpha)
-                    drawText(font, "Cheetah Mobile", "white", 830, 650, alpha)
+                    drawText(font, "Purple Fluxxy", "white", 830, 650, alpha)
                 elif LT < fs:
                     drawText(font, "Tetris", "white", 830, 600, 255)
-                    drawText(font, "Cheetah Mobile", "white", 830, 650, 255)
+                    drawText(font, "Purple Fluxxy", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
                     pygame.mixer.music.load(musicFolder + 'Tetris.mp3')
@@ -616,9 +616,8 @@ def level_3():
 
             # Handle enemy logic
             enemyLogic(LT)
-
             #x, y, w, h, LT, dur, warn, x2, y2, vx, vy, t
-            # Enemies start here (WIP, temporary placeholder)
+            # Enemies start here
             for i in beats1:
                 switch = random.randint(0, 1)
                 if LT == refBeat[0] + i:
@@ -636,11 +635,11 @@ def level_3():
                 GlideEnemies.append(generateGliding(900, 0, 380, 720, LT + round(2 * fpb), round(64 * fpb),
                                                     round(2 * fpb), 1280, 0, -10, 0, 38))
                 GlideEnemies.append(generateGliding(380, 0, 520, 20, LT + round(2 * fpb), round(64 * fpb),
-                                                    round(2 * fpb), 380, -20, 0, -1, 20))
+                                                    round(2 * fpb), 380, -20, 0, 1, 20))
                 GlideEnemies.append(generateGliding(380, 700, 520, 20, LT + round(2 * fpb), round(64 * fpb),
-                                                    round(2 * fpb), 380, 720, 0, 1, 20))
+                                                    round(2 * fpb), 380, 720, 0, -1, 20))
             if LT == refBeat[1]:
-                Gvy=-3
+                Gvy=3
             for i in beats2:
                 if LT == refBeat[1] + i:
                     LaserEnemies.append(
@@ -840,7 +839,7 @@ def level_4():
                     if switch:
                         ExplodeEnemies.append(generateExploding(-50, random.randint(0, 335), 50, 50, 10, 0, LT + round(fpb), 10, 10, 10, 8))
                     else:
-                        ExplodeEnemies.append(generateExploding(random.randint(0, 615), -50, 50, 50, 0, -10, LT + round(fpb), 10, 10, 10, 8))
+                        ExplodeEnemies.append(generateExploding(random.randint(0, 615), -50, 50, 50, 0, 10, LT + round(fpb), 10, 10, 10, 8))
                     switch = not switch
             if LT == refBeat[5]+round(16 * fpb):
                 flashing = True
@@ -857,7 +856,7 @@ def level_4():
                     if switch:
                         ExplodeEnemies.append(generateExploding(1280, random.randint(0, 335), 50, 50, -10, 0, LT + round(fpb), 10, 10, 10, 8))
                     else:
-                        ExplodeEnemies.append(generateExploding(random.randint(615, 1230), -50, 50, 50, 0, -10, LT + round(fpb), 10, 10, 10, 8))
+                        ExplodeEnemies.append(generateExploding(random.randint(615, 1230), -50, 50, 50, 0, 10, LT + round(fpb), 10, 10, 10, 8))
                     switch = not switch
             if LT == refBeat[5]+round(32 * fpb):
                 flashing = True
@@ -875,7 +874,7 @@ def level_4():
                     if switch:
                         ExplodeEnemies.append(generateExploding(-50, random.randint(335, 670), 50, 50, 10, 0, LT + round(fpb), 10, 10, 10, 8))
                     else:
-                        ExplodeEnemies.append(generateExploding(random.randint(0, 615), 720, 50, 50, 0, 10, LT + round(fpb), 10, 10, 10, 8))
+                        ExplodeEnemies.append(generateExploding(random.randint(0, 615), 720, 50, 50, 0, -10, LT + round(fpb), 10, 10, 10, 8))
                     switch = not switch
             if LT == refBeat[5] + round(48 * fpb):
                 flashing = True
@@ -892,7 +891,7 @@ def level_4():
                     if switch:
                         ExplodeEnemies.append(generateExploding(1280, random.randint(335, 670), 50, 50, -10, 0, LT + round(fpb), 10, 10, 10, 8))
                     else:
-                        ExplodeEnemies.append(generateExploding(random.randint(615, 1230), 720, 50, 50, 0, 10, LT + round(fpb), 10, 10, 10, 8))
+                        ExplodeEnemies.append(generateExploding(random.randint(615, 1230), 720, 50, 50, 0, -10, LT + round(fpb), 10, 10, 10, 8))
                     switch = not switch
             # Enemies end here
 
@@ -986,8 +985,9 @@ def level_5():
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
-                    # pygame.mixer.music.set_pos((LT-start)/60)
-                    # volume = 1.0
+                    #LT=1100
+                    #pygame.mixer.music.set_pos((LT-start)/60)
+                    #volume = 1.0
                 volume = min(1.0, volume + 0.05)
                 pygame.mixer.music.set_volume(volume)
                 if volume >= 1.0:
@@ -999,7 +999,7 @@ def level_5():
             # Enemies start here
             for i in beats1:
                 if LT == refBeat[0] + i:
-                    RectEnemies.append(generateBasic(random.randint(0, 1260), -20, 20, 20, 0, -15))
+                    RectEnemies.append(generateBasic(random.randint(0, 1260), -20, 20, 20, 0, 15))
             if LT == refBeat[1]:
                 flashing = True
                 color1=(0, 0, 0)
@@ -1012,14 +1012,22 @@ def level_5():
                         a = random.randint(0, 590)
                     else:
                         a = random.randint(591, 1180)
-                    RectEnemies.append(generateBasic(a, -100, 100, 100, 0, -10))
+                    RectEnemies.append(generateBasic(a, -100, 100, 100, 0, 10))
                     for j in range(1, 4):
-                        RectEnemies.append(generateBasic(a+25, -100-60*j, 50, 50, 0, -10))
+                        RectEnemies.append(generateBasic(a+25, -100-60*j, 50, 50, 0, 10))
                     switch = not switch
             if LT == refBeat[2] - round(4*fpb):
                 for i in range(1, 6):
                     ExplodeEnemies.append(
                         generateExploding(1280, 120*i, 50, 50, -2, 0, LT + round(4 * fpb), 5, 5, 8,24))
+                GlideEnemies.append(generateGliding(10, 0, 50, 720, LT + round(4 * fpb / 2), round(28 * fpb),
+                                                    round(4 * fpb / 2), 10, -720, 0, 72, 10))
+                GlideEnemies.append(generateGliding(70, 0, 50, 720, LT + round(5 * fpb / 2), round(28 * fpb),
+                                                    round(5 * fpb / 2), 70, 720, 0, -72, 10))
+                GlideEnemies.append(generateGliding(130, 0, 50, 720, LT + round(6 * fpb / 2), round(28 * fpb),
+                                                    round(6 * fpb / 2), 130, -720, 0, 72, 10))
+                GlideEnemies.append(generateGliding(190, 0, 50, 720, LT + round(7 * fpb / 2), round(28 * fpb),
+                                                    round(7 * fpb / 2), 190, 720, 0, -72, 10))
             if LT == refBeat[2]:
                 flashing = True
                 color1=(255, 255, 255)
@@ -1033,6 +1041,14 @@ def level_5():
                 for i in range(1, 6):
                     ExplodeEnemies.append(
                         generateExploding(-50, 120*i, 50, 50, 2, 0, LT + round(4 * fpb), 5, 5, 8,24))
+                GlideEnemies.append(generateGliding(1220, 0, 50, 720, LT + round(4 * fpb / 2), round(28 * fpb),
+                                                    round(4 * fpb / 2), 1220, -720, 0, 72, 10))
+                GlideEnemies.append(generateGliding(1160, 0, 50, 720, LT + round(5 * fpb / 2), round(28 * fpb),
+                                                    round(5 * fpb / 2), 1160, 720, 0, -72, 10))
+                GlideEnemies.append(generateGliding(1100, 0, 50, 720, LT + round(6 * fpb / 2), round(28 * fpb),
+                                                    round(6 * fpb / 2), 1100, -720, 0, 72, 10))
+                GlideEnemies.append(generateGliding(1040, 0, 50, 720, LT + round(7 * fpb / 2), round(28 * fpb),
+                                                    round(7 * fpb / 2), 1040, 720, 0, -72, 10))
             if LT == refBeat[3]:
                 flashing = True
                 color1 = (255, 255, 255)
@@ -1075,13 +1091,13 @@ def level_5():
                 if LT == refBeat[5] + i:
                     a = random.randint(0, 1240)
                     if switch:
-                        RectEnemies.append(generateBasic(a, -40, 40, 40, 0, -10))
+                        RectEnemies.append(generateBasic(a, -40, 40, 40, 0, 10))
                         for j in range(1, 6):
-                            RectEnemies.append(generateBasic(a+10, -40-30*j, 20, 20, 0, -10))
+                            RectEnemies.append(generateBasic(a+10, -40-30*j, 20, 20, 0, 10))
                     else:
-                        RectEnemies.append(generateBasic(a, 720, 40, 40, 0, 10))
+                        RectEnemies.append(generateBasic(a, 720, 40, 40, 0, -10))
                         for j in range(1, 6):
-                            RectEnemies.append(generateBasic(a+10, 740+30*j, 20, 20, 0, 10))
+                            RectEnemies.append(generateBasic(a+10, 740+30*j, 20, 20, 0, -10))
                     switch = not switch
             if LT == refBeat[6] - round(2 * fpb):
                 flashing = True
