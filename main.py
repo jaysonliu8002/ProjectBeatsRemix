@@ -1,5 +1,5 @@
-import sys, pygame, math, random
-#Goal: Convert everything to flipped y axis
+import sys, pygame, math, random, asyncio
+
 #initialize program
 pygame.init()
 pygame.mixer.init()
@@ -21,7 +21,7 @@ fade_speed = 0.05
 volume = 1.0
 pygame.mixer.music.set_volume(volume)
 musicFolder = 'Music/'
-RectLobbyMusic = 'StartTheStars.mp3'
+RectLobbyMusic = 'StartTheStars.ogg'
 
 #Text and related
 font = pygame.font.Font(None, 40)
@@ -125,18 +125,18 @@ RectLevelSelect = [pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3),
                   pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3),
                   pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3)]
 
-RectLevelMusic = [[pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3), 'CoconutMall.mp3'],
-                  [pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3), 'Focus.mp3'],
-                  [pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3), 'Tetris.mp3'],
-                  [pygame.rect.Rect(3*width/4, 0*height/3, width/4, height/3), 'Sevcon.mp3'],
+RectLevelMusic = [[pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3), 'CoconutMall.ogg'],
+                  [pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3), 'Focus.ogg'],
+                  [pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3), 'Tetris.ogg'],
+                  [pygame.rect.Rect(3*width/4, 0*height/3, width/4, height/3), 'Sevcon.ogg'],
 
-                  [pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3), 'MilkyWays.mp3'],
-                  [pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3), 'Chronos.mp3'],
+                  [pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3), 'MilkyWays.ogg'],
+                  [pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3), 'Chronos.ogg'],
 
-                  [pygame.rect.Rect(0*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],
-                  [pygame.rect.Rect(1*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],
-                  [pygame.rect.Rect(2*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],
-                  [pygame.rect.Rect(3*width/4, 2*height/3, width/4, height/3), 'StartTheStars.mp3'],]
+                  [pygame.rect.Rect(0*width/4, 2*height/3, width/4, height/3), 'StartTheStars.ogg'],
+                  [pygame.rect.Rect(1*width/4, 2*height/3, width/4, height/3), 'StartTheStars.ogg'],
+                  [pygame.rect.Rect(2*width/4, 2*height/3, width/4, height/3), 'StartTheStars.ogg'],
+                  [pygame.rect.Rect(3*width/4, 2*height/3, width/4, height/3), 'StartTheStars.ogg'],]
 
 #Global gravity
 Gvx, Gvy = 0, 0
@@ -266,7 +266,7 @@ def keyBinds(paused, LT):
 
 #Levels
 def level_1():
-    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
 
     volume = 0.0
     bpm = 132
@@ -321,7 +321,7 @@ def level_1():
                     drawText(font, "Ryu Nagamatsu & Asuka Ohta", "white", 830, 650, 255)
             if LT >= start-20 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + 'CoconutMall.mp3')
+                    pygame.mixer.music.load(musicFolder + RectLevelMusic[0][1])
                     pygame.mixer.music.play(0)
                     #Debug set song position
                     #Remove/Comment below two lines when running
@@ -386,7 +386,7 @@ def level_1():
             LT += 1
 
 def level_2():
-    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
     volume = 0.0
     bpm = 174
     activeMusic = False
@@ -446,7 +446,7 @@ def level_2():
                     drawText(font, "Chipzel", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + 'Focus.mp3')
+                    pygame.mixer.music.load(musicFolder + RectLevelMusic[1][1])
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -547,7 +547,7 @@ def level_2():
             LT += 1
 
 def level_3():
-    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
     volume = 0.0
     bpm = 143
     activeMusic = False
@@ -603,7 +603,7 @@ def level_3():
                     drawText(font, "Purple Fluxxy", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + 'Tetris.mp3')
+                    pygame.mixer.music.load(musicFolder + RectLevelMusic[2][1])
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -679,7 +679,7 @@ def level_3():
             LT += 1
 
 def level_4():
-    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
     volume = 0.0
     bpm = 133
     activeMusic = False
@@ -737,7 +737,7 @@ def level_4():
                     drawText(font, "Big Giant Circles", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + 'Sevcon.mp3')
+                    pygame.mixer.music.load(musicFolder + RectLevelMusic[3][1])
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -917,7 +917,7 @@ def level_4():
             LT += 1
 
 def level_5():
-    pygame.mixer.music.stop()
+    pygame.mixer.music.unload()
     volume = 0.0
     bpm = 183
     activeMusic = False
@@ -981,7 +981,7 @@ def level_5():
                     drawText(font, "Bossfight", "white", 830, 650, 255)
             if LT >= start - 25 and not fading:
                 if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + 'MilkyWays.mp3')
+                    pygame.mixer.music.load(musicFolder + RectLevelMusic[4][1])
                     pygame.mixer.music.play(0)
                     # Debug set song position
                     # Remove/Comment below two lines when running
@@ -1214,94 +1214,102 @@ def level_5():
             LT += 1
 
 def level_6():
-    pygame.mixer.music.load(musicFolder + 'Chronos.mp3')
+    pygame.mixer.music.unload()
+    pygame.mixer.music.load(musicFolder + RectLevelMusic[5][1])
     pygame.mixer.music.play(0)
 
 pygame.mixer.music.load(musicFolder + RectLobbyMusic)
 pygame.mixer.music.play(0)
 
 #Main lobby
-while True:
-    Gvx=Gvy=0
-    screen.fill("black")
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT: sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-            if event.key == pygame.K_RETURN:
-                if screenID==2 and not activeMusic is None and not busyFading:
-                    RectEnemies.clear()
-                    ExplodeEnemies.clear()
-                    LaserEnemies.clear()
-                    GlideEnemies.clear()
-                    SpinEnemies.clear()
-                    if activeMusic==0:
-                        level_1()
-                        fading = True
-                    elif activeMusic == 1:
-                        level_2()
-                        fading = True
-                    elif activeMusic == 2:
-                        level_3()
-                        fading = True
-                    elif activeMusic == 3:
-                        level_4()
-                        fading = True
-                    elif activeMusic == 4:
-                        level_5()
-                        fading = True
-    movePlayer(player)
+async def main():
+    global activeMusic, volume, busyFading, fading, Gvx, Gvy
+    while True:
+        Gvx=Gvy=0
+        screen.fill("black")
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+                if event.key == pygame.K_RETURN:
+                    if screenID==2 and not activeMusic is None and not busyFading:
+                        RectEnemies.clear()
+                        ExplodeEnemies.clear()
+                        LaserEnemies.clear()
+                        GlideEnemies.clear()
+                        SpinEnemies.clear()
+                        if activeMusic==0:
+                            level_1()
+                            fading = True
+                        elif activeMusic == 1:
+                            level_2()
+                            fading = True
+                        elif activeMusic == 2:
+                            level_3()
+                            fading = True
+                        elif activeMusic == 3:
+                            level_4()
+                            fading = True
+                        elif activeMusic == 4:
+                            level_5()
+                            fading = True
+                        elif activeMusic == 5:
+                            level_6()
+                            fading = True
+        movePlayer(player)
 
-    for i in range(len(RectLevelSelect)):
-        pygame.draw.rect(screen, "black", RectLevelSelect[i])
-    pygame.draw.rect(screen, "yellow", RectLevelMusic[0][0])
-    pygame.draw.rect(screen, "purple", RectLevelMusic[1][0])
-    pygame.draw.rect(screen, "red", RectLevelMusic[2][0])
-    pygame.draw.rect(screen, "pink", RectLevelMusic[3][0])
-    pygame.draw.rect(screen, "navy", RectLevelMusic[4][0])
-    pygame.draw.rect(screen, "brown", RectLevelMusic[5][0])
-    drawText(font, "Welcome to Project Beats Remix", "white", 430, 300, 255)
-    drawText(font, "Go to a level and hit 'Enter' to play", "white", 420, 400, 255)
-    drawText(font, "Level 1: Coconut Mall", "purple", 15, 100, 255)
-    drawText(font, "Level 2: Focus", "yellow", 380, 100, 255)
-    drawText(font, "Level 3: Tetris", "cyan", 700, 100, 255)
-    drawText(font, "Level 4: Sevcon", "dark green", 1020, 100, 255)
-    drawText(font, "Level 5: Milky Ways", "orange", 20, 340, 255)
-    drawText(font, "Level 6: ???", "white", 1020, 340, 255)
-    drawText(font, "Level 7: ???", "white", 20, 580, 255)
-    drawText(font, "Level 8: ???", "white", 380, 580, 255)
-    drawText(font, "Level 9: ???", "white", 670, 580, 255)
-    drawText(font, "Level 10: ???", "white", 1020, 580, 255)
-    pygame.draw.rect(screen, "blue", player)
+        for i in range(len(RectLevelSelect)):
+            pygame.draw.rect(screen, "black", RectLevelSelect[i])
+        pygame.draw.rect(screen, "yellow", RectLevelMusic[0][0])
+        pygame.draw.rect(screen, "purple", RectLevelMusic[1][0])
+        pygame.draw.rect(screen, "red", RectLevelMusic[2][0])
+        pygame.draw.rect(screen, "pink", RectLevelMusic[3][0])
+        pygame.draw.rect(screen, "navy", RectLevelMusic[4][0])
+        pygame.draw.rect(screen, "brown", RectLevelMusic[5][0])
+        drawText(font, "Welcome to Project Beats Remix", "white", 430, 300, 255)
+        drawText(font, "Go to a level and hit 'Enter' to play", "white", 420, 400, 255)
+        drawText(font, "Level 1: Coconut Mall", "purple", 15, 100, 255)
+        drawText(font, "Level 2: Focus", "yellow", 380, 100, 255)
+        drawText(font, "Level 3: Tetris", "cyan", 700, 100, 255)
+        drawText(font, "Level 4: Sevcon", "dark green", 1020, 100, 255)
+        drawText(font, "Level 5: Milky Ways", "orange", 20, 340, 255)
+        drawText(font, "Level 6: ???", "white", 1020, 340, 255)
+        drawText(font, "Level 7: ???", "white", 20, 580, 255)
+        drawText(font, "Level 8: ???", "white", 380, 580, 255)
+        drawText(font, "Level 9: ???", "white", 670, 580, 255)
+        drawText(font, "Level 10: ???", "white", 1020, 580, 255)
+        pygame.draw.rect(screen, "blue", player)
 
-    musicIndex = None
-    for i in range(len(RectLevelMusic)):
-        if RectLevelMusic[i][0].collidepoint(player.center):
-            musicIndex = i
-            break
-    if musicIndex != activeMusic or busyFading:
-        if musicIndex is None and musicIndex != activeMusic and not fading:
-            pygame.mixer.music.load(musicFolder + RectLobbyMusic)
+        musicIndex = None
+        for i in range(len(RectLevelMusic)):
+            if RectLevelMusic[i][0].collidepoint(player.center):
+                musicIndex = i
+                break
+        if musicIndex != activeMusic or busyFading:
+            if musicIndex is None and musicIndex != activeMusic and not fading:
+                pygame.mixer.music.load(musicFolder + RectLobbyMusic)
+                pygame.mixer.music.play(0)
+            elif musicIndex != activeMusic and not fading:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[musicIndex][1])
+                pygame.mixer.music.play(0)
+            if fading:
+                busyFading = True
+                volume = max(0.0, volume - fade_speed)
+                pygame.mixer.music.set_volume(volume)
+                if volume <= 0.0:
+                    fading = False
+            else:
+                activeMusic = musicIndex
+                volume = min(1.0, volume + fade_speed)
+                pygame.mixer.music.set_volume(volume)
+                if volume >= 1.0:
+                    fading = True
+                    busyFading = False
+        if not pygame.mixer.music.get_busy():
             pygame.mixer.music.play(0)
-        elif musicIndex != activeMusic and not fading:
-            pygame.mixer.music.load(musicFolder + RectLevelMusic[musicIndex][1])
-            pygame.mixer.music.play(0)
-        if fading:
-            busyFading = True
-            volume = max(0.0, volume - fade_speed)
-            pygame.mixer.music.set_volume(volume)
-            if volume <= 0.0:
-                fading = False
-        else:
-            activeMusic = musicIndex
-            volume = min(1.0, volume + fade_speed)
-            pygame.mixer.music.set_volume(volume)
-            if volume >= 1.0:
-                fading = True
-                busyFading = False
-    if not pygame.mixer.music.get_busy():
-        pygame.mixer.music.play(0)
-    pygame.display.flip()
-    fps.tick(60)
+        pygame.display.flip()
+        fps.tick(60)
+        await asyncio.sleep(0)
+asyncio.run(main())
