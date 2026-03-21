@@ -265,7 +265,7 @@ def keyBinds(paused, LT):
     return paused
 
 #Levels
-def level_1():
+async def level_1():
     pygame.mixer.music.unload()
 
     volume = 0.0
@@ -384,8 +384,9 @@ def level_1():
             pygame.display.flip()
             fps.tick(60)
             LT += 1
+            await asyncio.sleep(0)
 
-def level_2():
+async def level_2():
     pygame.mixer.music.unload()
     volume = 0.0
     bpm = 174
@@ -545,8 +546,9 @@ def level_2():
             pygame.display.flip()
             fps.tick(60)
             LT += 1
+            await asyncio.sleep(0)
 
-def level_3():
+async def level_3():
     pygame.mixer.music.unload()
     volume = 0.0
     bpm = 143
@@ -677,8 +679,9 @@ def level_3():
             pygame.display.flip()
             fps.tick(60)
             LT += 1
+            await asyncio.sleep(0)
 
-def level_4():
+async def level_4():
     pygame.mixer.music.unload()
     volume = 0.0
     bpm = 133
@@ -915,8 +918,9 @@ def level_4():
             pygame.display.flip()
             fps.tick(60)
             LT += 1
+            await asyncio.sleep(0)
 
-def level_5():
+async def level_5():
     pygame.mixer.music.unload()
     volume = 0.0
     bpm = 183
@@ -1212,11 +1216,13 @@ def level_5():
             pygame.display.flip()
             fps.tick(60)
             LT += 1
+            await asyncio.sleep(0)
 
-def level_6():
+async def level_6():
     pygame.mixer.music.unload()
     pygame.mixer.music.load(musicFolder + RectLevelMusic[5][1])
     pygame.mixer.music.play(0)
+    await asyncio.sleep(0)
 
 pygame.mixer.music.load(musicFolder + RectLobbyMusic)
 pygame.mixer.music.play(0)
@@ -1241,22 +1247,22 @@ async def main():
                         GlideEnemies.clear()
                         SpinEnemies.clear()
                         if activeMusic==0:
-                            level_1()
+                            await level_1()
                             fading = True
                         elif activeMusic == 1:
-                            level_2()
+                            await level_2()
                             fading = True
                         elif activeMusic == 2:
-                            level_3()
+                            await level_3()
                             fading = True
                         elif activeMusic == 3:
-                            level_4()
+                            await level_4()
                             fading = True
                         elif activeMusic == 4:
-                            level_5()
+                            await level_5()
                             fading = True
                         elif activeMusic == 5:
-                            level_6()
+                            await level_6()
                             fading = True
         movePlayer(player)
 
