@@ -7,6 +7,8 @@ jobs:
   build-pygbag:
     name: Build for Emscripten pygbag runtime
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
     - uses: actions/checkout@v2
