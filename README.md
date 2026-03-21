@@ -1,19 +1,19 @@
-# ProjectBeatsRemix Version 0.3.0-alpha
+# ProjectBeatsRemix Version 0.3.1-alpha
 Basically a Pygame version of Just Shapes and Beats and Project Arrhythmia.
 
 Controls: WASD
 
 Supported devices: Laptop, PC
 
-**WARNING: THE WEB PROGRAM IS CURRENTLY UNSTABLE AND PRONE TO CRASHING DUE TO ISSUES WITH ASYNCIO. FOR NOW, THE GAME CODE SHOULD BE RUN LOCALLY UNTIL I CAN FIX THE ISSUE.**
+# What's new: 3/21/2026
 
-# What's new: 3/15/2026
+The website crashing issue has been resolved. The web version of Project Beats Remix should function properly now.
 
-Project Beats Remix is now available to run on the website. Feel free to give suggestions on improvements in the discussions.
+I am aware of music/SFX corruption in the web version and am working on a fix.
 
 # Bug fixes:
 
-Music should no longer spike when changing between levels
+Fixed a major website-breaking issue
 
 # Coming Soon:
 
