@@ -11,7 +11,7 @@ screen = pygame.display.set_mode(size)
 fps = pygame.time.Clock()
 player = pygame.rect.Rect(width/2-10, height/2-10, 20, 20)
 #WIP
-screenID = 2
+screenID = 1
 
 #Music and related
 activeMusic = None
@@ -117,14 +117,6 @@ def enemyLogic(LT):
         i += 1
 
 #Screen 2
-RectLevelSelect = [pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3),
-                  pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3),
-                  pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3),
-                  pygame.rect.Rect(3*width/4, 0*height/3, width/4, height/3),
-
-                  pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3),
-                  pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3)]
-
 RectLevelMusic = [[pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3), 'CoconutMall.ogg'],
                   [pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3), 'Focus.ogg'],
                   [pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3), 'Tetris.ogg'],
@@ -1225,11 +1217,12 @@ async def level_6():
     await asyncio.sleep(0)
 
 pygame.mixer.music.load(musicFolder + RectLobbyMusic)
-pygame.mixer.music.play(0)
 
 #Main lobby
 async def main():
-    global activeMusic, volume, busyFading, fading, Gvx, Gvy
+    global activeMusic, volume, busyFading, fading, Gvx, Gvy, screenID
+    ticking=False
+    alpha=255
     while True:
         Gvx=Gvy=0
         screen.fill("black")
@@ -1240,7 +1233,9 @@ async def main():
                     pygame.quit()
                     sys.exit()
                 if event.key == pygame.K_RETURN:
-                    if screenID==2 and not activeMusic is None and not busyFading:
+                    if screenID==1:
+                        ticking=True
+                    elif screenID==2 and not activeMusic is None and not busyFading:
                         RectEnemies.clear()
                         ExplodeEnemies.clear()
                         LaserEnemies.clear()
@@ -1264,57 +1259,72 @@ async def main():
                         elif activeMusic == 5:
                             await level_6()
                             fading = True
-        movePlayer(player)
+        if screenID==1:
+            if ticking:
+                alpha-=2
+                if alpha<=0:
+                    screenID=2
+            s = pygame.Surface((350, 180))
+            s.set_alpha(alpha)  # alpha level
+            s.fill("purple")  # this fills the entire surface
+            screen.blit(s, (1280/2-175, 720/2-75))
 
-        for i in range(len(RectLevelSelect)):
-            pygame.draw.rect(screen, "black", RectLevelSelect[i])
-        pygame.draw.rect(screen, "yellow", RectLevelMusic[0][0])
-        pygame.draw.rect(screen, "purple", RectLevelMusic[1][0])
-        pygame.draw.rect(screen, "red", RectLevelMusic[2][0])
-        pygame.draw.rect(screen, "pink", RectLevelMusic[3][0])
-        pygame.draw.rect(screen, "navy", RectLevelMusic[4][0])
-        pygame.draw.rect(screen, "brown", RectLevelMusic[5][0])
-        drawText(font, "Welcome to Project Beats Remix", "white", 430, 300, 255)
-        drawText(font, "Go to a level and hit 'Enter' to play", "white", 420, 400, 255)
-        drawText(font, "Level 1: Coconut Mall", "purple", 15, 100, 255)
-        drawText(font, "Level 2: Focus", "yellow", 380, 100, 255)
-        drawText(font, "Level 3: Tetris", "cyan", 700, 100, 255)
-        drawText(font, "Level 4: Sevcon", "dark green", 1020, 100, 255)
-        drawText(font, "Level 5: Milky Ways", "orange", 20, 340, 255)
-        drawText(font, "Level 6: ???", "white", 1020, 340, 255)
-        drawText(font, "Level 7: ???", "white", 20, 580, 255)
-        drawText(font, "Level 8: ???", "white", 380, 580, 255)
-        drawText(font, "Level 9: ???", "white", 670, 580, 255)
-        drawText(font, "Level 10: ???", "white", 1020, 580, 255)
-        pygame.draw.rect(screen, "blue", player)
+            drawText(font, "Project Beats Remix", "skyblue", 500, 300, alpha)
+            drawText(font, "By: Jayson Liu", "skyblue", 545, 360, alpha)
+            drawText(font, "Press Enter to Continue", "skyblue", 480, 420, alpha)
+        elif screenID==2:
+            pygame.draw.rect(screen, "yellow", RectLevelMusic[0][0])
+            pygame.draw.rect(screen, "purple", RectLevelMusic[1][0])
+            pygame.draw.rect(screen, "red", RectLevelMusic[2][0])
+            pygame.draw.rect(screen, "pink", RectLevelMusic[3][0])
+            pygame.draw.rect(screen, "navy", RectLevelMusic[4][0])
+            pygame.draw.rect(screen, "brown", RectLevelMusic[5][0])
+            drawText(font, "Welcome to Project Beats Remix", "white", 430, 300, 255)
+            drawText(font, "Go to a level and hit 'Enter' to play", "white", 420, 400, 255)
+            drawText(font, "Level 1: Coconut Mall", "purple", 15, 100, 255)
+            drawText(font, "Level 2: Focus", "yellow", 380, 100, 255)
+            drawText(font, "Level 3: Tetris (WIP)", "cyan", 670, 100, 255)
+            drawText(font, "Level 4: Sevcon", "dark green", 1020, 100, 255)
+            drawText(font, "Level 5: Milky Ways", "orange", 20, 340, 255)
+            drawText(font, "Level 6: ???", "white", 1020, 340, 255)
+            drawText(font, "Level 7: ???", "white", 20, 580, 255)
+            drawText(font, "Level 8: ???", "white", 380, 580, 255)
+            drawText(font, "Level 9: ???", "white", 670, 580, 255)
+            drawText(font, "Level 10: ???", "white", 1020, 580, 255)
 
-        musicIndex = None
-        for i in range(len(RectLevelMusic)):
-            if RectLevelMusic[i][0].collidepoint(player.center):
-                musicIndex = i
-                break
-        if musicIndex != activeMusic or busyFading:
-            if musicIndex is None and musicIndex != activeMusic and not fading:
-                pygame.mixer.music.load(musicFolder + RectLobbyMusic)
+
+            musicIndex = None
+            for i in range(len(RectLevelMusic)):
+                if RectLevelMusic[i][0].collidepoint(player.center):
+                    musicIndex = i
+                    break
+            if musicIndex != activeMusic or busyFading:
+                if musicIndex is None and musicIndex != activeMusic and not fading:
+                    pygame.mixer.music.load(musicFolder + RectLobbyMusic)
+                    pygame.mixer.music.play(0)
+                elif musicIndex != activeMusic and not fading:
+                    pygame.mixer.music.load(musicFolder + RectLevelMusic[musicIndex][1])
+                    pygame.mixer.music.play(0)
+                if fading:
+                    busyFading = True
+                    volume = max(0.0, volume - fade_speed)
+                    pygame.mixer.music.set_volume(volume)
+                    if volume <= 0.0:
+                        fading = False
+                else:
+                    activeMusic = musicIndex
+                    volume = min(1.0, volume + fade_speed)
+                    pygame.mixer.music.set_volume(volume)
+                    if volume >= 1.0:
+                        fading = True
+                        busyFading = False
+            if not pygame.mixer.music.get_busy():
                 pygame.mixer.music.play(0)
-            elif musicIndex != activeMusic and not fading:
-                pygame.mixer.music.load(musicFolder + RectLevelMusic[musicIndex][1])
-                pygame.mixer.music.play(0)
-            if fading:
-                busyFading = True
-                volume = max(0.0, volume - fade_speed)
-                pygame.mixer.music.set_volume(volume)
-                if volume <= 0.0:
-                    fading = False
-            else:
-                activeMusic = musicIndex
-                volume = min(1.0, volume + fade_speed)
-                pygame.mixer.music.set_volume(volume)
-                if volume >= 1.0:
-                    fading = True
-                    busyFading = False
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.play(0)
+            movePlayer(player)
+            pygame.draw.rect(screen, "blue", player)
+
+
+
         pygame.display.flip()
         fps.tick(60)
         await asyncio.sleep(0)
