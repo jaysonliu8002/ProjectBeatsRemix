@@ -1,5 +1,6 @@
 import sys, pygame, math, random, asyncio
 
+#Project started 9/22/2025
 #initialize program
 pygame.init()
 pygame.mixer.init()
@@ -22,6 +23,7 @@ volume = 1.0
 pygame.mixer.music.set_volume(volume)
 musicFolder = 'Music/'
 RectLobbyMusic = 'StartTheStars.ogg'
+damageSFX = pygame.mixer.Sound('SFX/damageSFX.ogg')
 
 #Text and related
 font = pygame.font.Font(None, 40)
@@ -145,10 +147,10 @@ def movePlayer(player):
     if Gvx > 0 and player.x < 1260 or Gvx < 0 and player.x > 0: player.x += Gvx
     if Gvy < 0 and player.y > 0 or Gvy > 0 and player.y < 700: player.y += Gvy
     keys = pygame.key.get_pressed()
-    if keys[pygame.K_w]: player.y = max(0, player.y - speed)
-    if keys[pygame.K_a]: player.x = max(0, player.x - speed)
-    if keys[pygame.K_s]: player.y = min(700, player.y + speed)
-    if keys[pygame.K_d]: player.x = min(1260, player.x + speed)
+    if keys[pygame.K_w] or keys[pygame.K_UP]: player.y = max(0, player.y - speed)
+    if keys[pygame.K_a] or keys[pygame.K_LEFT]: player.x = max(0, player.x - speed)
+    if keys[pygame.K_s] or keys[pygame.K_DOWN]: player.y = min(700, player.y + speed)
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: player.x = min(1260, player.x + speed)
 
 
 def moveObject(rect, vx, vy):
@@ -183,38 +185,44 @@ def transitionColor(LT, time, diff, color1, color2):
     screen.fill((value1, value2, value3))
 
 #Level functions
-def damageCheck(lives):
+def damageCheck(lives, INVT, LT):
+    if lives == 0:
+        player.centerx = width / 2
+        player.centery = height / 2
+        print("You died")
+    elif INVT > LT:
+        pygame.draw.circle(screen, "cyan", player.center, 18)
     if lives == 3:
         pygame.draw.rect(screen, "blue", player)
     elif lives == 2:
         pygame.draw.rect(screen, "yellow", player)
     elif lives == 1:
         pygame.draw.rect(screen, "dark red", player)
-    else:
-        player.centerx = width / 2
-        player.centery = height / 2
-        print("You died")
 
 def invCheck(lives, INVT, LT, player_mask):
     # Handle invincibility
     if INVT <= LT:
         for i in RectEnemies:
             if player.colliderect(i[0]):
+                damageSFX.play(0)
                 lives -= 1
                 INVT = LT + 120
                 break
         for i in ExplodeEnemies:
             if player.colliderect(i[0]):
+                damageSFX.play(0)
                 lives -= 1
                 INVT = LT + 120
                 break
         for i in LaserEnemies:
             if player.colliderect(i[0]) and i[4]:
+                damageSFX.play(0)
                 lives -= 1
                 INVT = LT + 120
                 break
         for i in GlideEnemies:
             if player.colliderect(i[1]):
+                damageSFX.play(0)
                 lives -= 1
                 INVT = LT + 120
                 break
@@ -227,6 +235,7 @@ def invCheck(lives, INVT, LT, player_mask):
                 mask = pygame.mask.from_surface(rotated)
                 offset = (player.x - rect.x, player.y - rect.y)
                 if mask.overlap(player_mask, offset) and i[10]:
+                    damageSFX.play(0)
                     lives -= 1
                     INVT = LT + 120
                     break
@@ -238,17 +247,16 @@ def keyBinds(paused, LT):
             sys.exit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                sys.exit()
+                return -1
             elif event.key == pygame.K_p:
                 if paused:
                     pygame.mixer.music.unpause()
-                    return False
+                    return 0
                 else:
                     pygame.mixer.music.pause()
                     drawText(font, "Game Paused", "white", 550, 340, 255)
                     pygame.display.flip()
-                    return True
+                    return 1
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 print("Frame #: " + str(LT))
@@ -299,7 +307,11 @@ async def level_1():
         paused = keyBinds(paused, LT)
 
         #Core game code
-        if not paused:
+        if paused==-1:
+            player.centerx = width / 2
+            player.centery = height / 2
+            break
+        elif paused==0:
             screen.fill("black")
             #Fading text
             if LT<=240:
@@ -370,7 +382,8 @@ async def level_1():
                 print("You win")
 
             #Damage taken
-            damageCheck(lives)
+
+            damageCheck(lives, INVT, LT)
 
             #Ticks and Display
             pygame.display.flip()
@@ -424,7 +437,11 @@ async def level_2():
         paused = keyBinds(paused, LT)
 
         # Core game code
-        if not paused:
+        if paused==-1:
+            player.centerx = width / 2
+            player.centery = height / 2
+            break
+        elif paused==0:
             screen.fill("black")
 
             # Fading text
@@ -532,7 +549,7 @@ async def level_2():
                 print("You win")
 
             # Damage taken
-            damageCheck(lives)
+            damageCheck(lives, INVT, LT)
 
             # Ticks and Display
             pygame.display.flip()
@@ -577,7 +594,11 @@ async def level_3():
         paused = keyBinds(paused, LT)
 
         # Core game code
-        if not paused:
+        if paused==-1:
+            player.centerx = width / 2
+            player.centery = height / 2
+            break
+        elif paused==0:
             if not flashing:
                 screen.fill(color1)
             else:
@@ -665,7 +686,7 @@ async def level_3():
                 print("You win")
 
             # Damage taken
-            damageCheck(lives)
+            damageCheck(lives, INVT, LT)
 
             # Ticks and Display
             pygame.display.flip()
@@ -712,7 +733,11 @@ async def level_4():
         paused = keyBinds(paused, LT)
 
         # Core game code
-        if not paused:
+        if paused==-1:
+            player.centerx = width / 2
+            player.centery = height / 2
+            break
+        elif paused==0:
             if not flashing:
                 screen.fill(color1)
             else:
@@ -904,7 +929,7 @@ async def level_4():
                 print("You win")
 
             # Damage taken
-            damageCheck(lives)
+            damageCheck(lives, INVT, LT)
 
             # Ticks and Display
             pygame.display.flip()
@@ -957,7 +982,11 @@ async def level_5():
         paused = keyBinds(paused, LT)
 
         # Core game code
-        if not paused:
+        if paused==-1:
+            player.centerx = width / 2
+            player.centery = height / 2
+            break
+        elif paused==0:
             if not flashing:
                 screen.fill(color1)
             else:
@@ -1202,7 +1231,7 @@ async def level_5():
                 print("You win")
 
             # Damage taken
-            damageCheck(lives)
+            damageCheck(lives, INVT, LT)
 
             # Ticks and Display
             pygame.display.flip()
@@ -1216,13 +1245,14 @@ async def level_6():
     pygame.mixer.music.play(0)
     await asyncio.sleep(0)
 
-pygame.mixer.music.load(musicFolder + RectLobbyMusic)
-
 #Main lobby
 async def main():
     global activeMusic, volume, busyFading, fading, Gvx, Gvy, screenID
     ticking=False
     alpha=255
+    pygame.mixer.music.load(musicFolder + 'Circus.ogg')
+    pygame.mixer.music.set_volume(0.4)
+    pygame.mixer.music.play(0)
     while True:
         Gvx=Gvy=0
         screen.fill("black")
@@ -1230,8 +1260,14 @@ async def main():
             if event.type == pygame.QUIT: sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+                    if screenID !=1:
+                        pygame.mixer.music.unload()
+                        pygame.mixer.music.load(musicFolder + 'Circus.ogg')
+                        pygame.mixer.music.set_volume(0.4)
+                        pygame.mixer.music.play(0)
+                        alpha=255
+                        fading=False
+                        screenID=1
                 if event.key == pygame.K_RETURN:
                     if screenID==1:
                         ticking=True
@@ -1263,7 +1299,14 @@ async def main():
             if ticking:
                 alpha-=2
                 if alpha<=0:
+                    ticking=False
+                    player.centerx = width / 2
+                    player.centery = height / 2
+                    pygame.mixer.music.load(musicFolder + RectLobbyMusic)
+                    pygame.mixer.music.set_volume(1)
+                    fading=False
                     screenID=2
+
             s = pygame.Surface((350, 180))
             s.set_alpha(alpha)  # alpha level
             s.fill("purple")  # this fills the entire surface
@@ -1319,7 +1362,13 @@ async def main():
                         fading = True
                         busyFading = False
             if not pygame.mixer.music.get_busy():
-                pygame.mixer.music.play(0)
+                try:
+                    pygame.mixer.music.play(0)
+                except pygame.error:
+                    print("Music Error: No music found. Defaulting to lobby music.")
+                    fading=False
+                    pygame.mixer.music.load(musicFolder + RectLobbyMusic)
+                    pygame.mixer.music.play(0)
             movePlayer(player)
             pygame.draw.rect(screen, "blue", player)
 
