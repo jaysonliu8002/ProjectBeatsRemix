@@ -5,6 +5,8 @@ Controls: WASD
 
 Supported devices: Laptop, PC
 
+[Play Here](https://bruhnotog.github.io/ProjectBeatsRemix/)
+
 # What's new: 3/22/2026
 
 New Quality of Life Changes, including new SFXs, music, and visuals!
