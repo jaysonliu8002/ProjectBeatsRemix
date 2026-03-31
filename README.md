@@ -1,24 +1,20 @@
-# ProjectBeatsRemix Version 0.3.2-alpha
+# ProjectBeatsRemix Version 0.3.3-alpha
 Basically a Pygame version of Just Shapes and Beats and Project Arrhythmia.
 
 Controls: WASD
 
 Supported devices: Laptop, PC
 
-[Play Here](https://bruhnotog.github.io/ProjectBeatsRemix/)
+[Play Now](https://bruhnotog.github.io/ProjectBeatsRemix/)
 
-# What's new: 3/22/2026
+# What's new: 3/31/2026
 
-New Quality of Life Changes, including new SFXs, music, and visuals!
+A brand new debug feature has been added, allowing full control over the level, music, and more.
 
-The website crashing issue has been resolved. The web version of Project Beats Remix should function properly now.
+Type the key combination "d-e-b-u-g" while on the title screen, and a debug text should appear.
 
 # Bug fixes:
 
-Fixed a major website-breaking issue
+Fixed duplicate and misleading variable names
 
-Removed unnecessary functions
-
-# Coming Soon:
-
-Level 3 completion with 5 new enemies...
+Removed redundant enemy functions causing considerable lag spikes.
