@@ -35,6 +35,11 @@ LaserEnemies = []
 GlideEnemies = []
 SpinEnemies = []
 
+#Other
+debug = False
+code = [pygame.K_d, pygame.K_e, pygame.K_b, pygame.K_u, pygame.K_g]
+idx = 0
+
 def enemyLogic(LT):
     global RectEnemies
     global ExplodeEnemies
@@ -265,22 +270,17 @@ def keyBinds(paused, LT):
     return paused
 
 #Levels
-async def level_1():
+async def level_1(debug):
     pygame.mixer.music.unload()
-
-    volume = 0.0
     bpm = 132
     activeMusic = False
     start = 260
-
-    # When running, set LT = 0
-    # When debugging, set LT >= 0
     LT = 0
     INVT = 0
-    fading = False
     fpb = 3600/bpm
     lives=3
     paused = False
+    debugF = 0
 
     #Use aprox values
     beats1 = [i for i in range(0, 50, 10)]
@@ -301,6 +301,11 @@ async def level_1():
     #Use precise values
     refBeat = [start, start+round(16*3600/bpm), start+round(32*fpb), start+round(48*3600/bpm),
                start+round(56*fpb), start+round(64*fpb), start+round(96*fpb)]
+
+    if debug:
+        drawText(font, "See Console", "white", 550, 340, 255)
+        pygame.display.flip()
+        debugF=max(int(input("Starting frame: ")),start)
 
     while not lives==0:
         # Handle events
@@ -323,18 +328,13 @@ async def level_1():
                 elif LT < fs:
                     drawText(font, "Coconut Mall", "white", 830, 600, 255)
                     drawText(font, "Ryu Nagamatsu & Asuka Ohta", "white", 830, 650, 255)
-            if LT >= start-20 and not fading:
-                if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + RectLevelMusic[0][1])
-                    pygame.mixer.music.play(0)
-                    #Debug set song position
-                    #Remove/Comment below two lines when running
-                    #pygame.mixer.music.set_pos((LT-start)/60)
-                    #volume = 1.0
-                volume = min(1.0, volume + 0.05)
-                pygame.mixer.music.set_volume(volume)
-                if volume >= 1.0:
-                    fading = True
+            if LT >= start and not activeMusic:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[0][1])
+                pygame.mixer.music.play(0)
+                if debug:
+                    LT = debugF
+                pygame.mixer.music.set_pos((LT - start) / 60)
+                activeMusic = True
 
             # Handle enemy logic
             enemyLogic(LT)
@@ -391,23 +391,19 @@ async def level_1():
             LT += 1
             await asyncio.sleep(0)
 
-async def level_2():
+async def level_2(debug):
     pygame.mixer.music.unload()
-    volume = 0.0
     bpm = 174
     activeMusic = False
     start = 260
     switch = True
     switch2 = True
-
-    # When running, set LT = 0
-    # When debugging, set LT >= 0
     LT = 0
     INVT = 0
-    fading = False
     fpb = 3600 / bpm
     lives = 3
     paused = False
+    debugF = 0
 
     # Use aprox values
     beats1 = [round(i*fpb*4) for i in range(60//4)]
@@ -432,6 +428,11 @@ async def level_2():
                start + round(144*fpb), start + round(160*fpb), start + round(176*fpb), start + round(192*fpb),
                start + round(224*fpb), start + round(272*fpb)]
 
+    if debug:
+        drawText(font, "See Console", "white", 550, 340, 255)
+        pygame.display.flip()
+        debugF=max(int(input("Starting frame: ")),start)
+
     while not lives==0:
         # Handle events
         paused = keyBinds(paused, LT)
@@ -454,18 +455,13 @@ async def level_2():
                 elif LT < fs:
                     drawText(font, "Focus", "white", 830, 600, 255)
                     drawText(font, "Chipzel", "white", 830, 650, 255)
-            if LT >= start - 25 and not fading:
-                if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + RectLevelMusic[1][1])
-                    pygame.mixer.music.play(0)
-                    # Debug set song position
-                    # Remove/Comment below two lines when running
-                    #pygame.mixer.music.set_pos((LT-start)/60)
-                    #volume = 1.0
-                volume = min(1.0, volume + 0.05)
-                pygame.mixer.music.set_volume(volume)
-                if volume >= 1.0:
-                    fading = True
+            if LT >= start and not activeMusic:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[1][1])
+                pygame.mixer.music.play(0)
+                if debug:
+                    LT = debugF
+                pygame.mixer.music.set_pos((LT - start) / 60)
+                activeMusic = True
 
             # Handle enemy logic
             enemyLogic(LT)
@@ -557,9 +553,8 @@ async def level_2():
             LT += 1
             await asyncio.sleep(0)
 
-async def level_3():
+async def level_3(debug):
     pygame.mixer.music.unload()
-    volume = 0.0
     bpm = 143
     activeMusic = False
     start = 300
@@ -570,15 +565,12 @@ async def level_3():
     color1 = (0, 0, 0)
     color2 = (0, 0, 0)
     global Gvx, Gvy
-
-    # When running, set LT = 0
-    # When debugging, set LT >= 0
     LT = 0
     INVT = 0
-    fading = False
     fpb = 3600 / bpm
     lives = 3
     paused = False
+    debugF = 0
 
     # Use aprox values
     beats1 = [round(i * fpb) for i in range(22)]
@@ -588,6 +580,12 @@ async def level_3():
     # Use precise values
     refBeat = [start, start + round(26 * fpb), start + round(58 * fpb), start + round(90 * fpb)]
     player_mask = pygame.Mask(player.size, fill=True)
+
+    if debug:
+        drawText(font, "See Console", "white", 550, 340, 255)
+        pygame.display.flip()
+        debugF=max(int(input("Starting frame: ")),start)
+
     while not lives == 0:
 
         # Handle events
@@ -616,18 +614,13 @@ async def level_3():
                 elif LT < fs:
                     drawText(font, "Tetris", "white", 830, 600, 255)
                     drawText(font, "Purple Fluxxy", "white", 830, 650, 255)
-            if LT >= start - 25 and not fading:
-                if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + RectLevelMusic[2][1])
-                    pygame.mixer.music.play(0)
-                    # Debug set song position
-                    # Remove/Comment below two lines when running
-                    # pygame.mixer.music.set_pos((LT-start)/60)
-                    # volume = 1.0
-                volume = min(1.0, volume + 0.05)
-                pygame.mixer.music.set_volume(volume)
-                if volume >= 1.0:
-                    fading = True
+            if LT >= start and not activeMusic:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[2][1])
+                pygame.mixer.music.play(0)
+                if debug:
+                    LT = debugF
+                pygame.mixer.music.set_pos((LT - start) / 60)
+                activeMusic = True
 
             # Handle enemy logic
             enemyLogic(LT)
@@ -694,9 +687,8 @@ async def level_3():
             LT += 1
             await asyncio.sleep(0)
 
-async def level_4():
+async def level_4(debug):
     pygame.mixer.music.unload()
-    volume = 0.0
     bpm = 133
     activeMusic = False
     start = 300
@@ -706,15 +698,12 @@ async def level_4():
     diff = 0
     color1 = (0, 0, 0)
     color2 = (0, 0, 0)
-
-    # When running, set LT = 0
-    # When debugging, set LT >= 0
     LT = 0
     INVT = 0
-    fading = False
     fpb = 3600 / bpm
     lives = 3
     paused = False
+    debugF = 0
 
     # Use aprox values
     beats1 = [round(i * fpb) for i in range(60)]
@@ -727,6 +716,12 @@ async def level_4():
     refBeat = [start, start + round(64*fpb), start + round(96*fpb), start + round(128*fpb),
                start + round(160*fpb), start + round(192*fpb)]
     player_mask = pygame.Mask(player.size, fill=True)
+
+    if debug:
+        drawText(font, "See Console", "white", 550, 340, 255)
+        pygame.display.flip()
+        debugF=max(int(input("Starting frame: ")),start)
+
     while not lives==0:
 
         # Handle events
@@ -755,18 +750,13 @@ async def level_4():
                 elif LT < fs:
                     drawText(font, "Sevcon", "white", 830, 600, 255)
                     drawText(font, "Big Giant Circles", "white", 830, 650, 255)
-            if LT >= start - 25 and not fading:
-                if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + RectLevelMusic[3][1])
-                    pygame.mixer.music.play(0)
-                    # Debug set song position
-                    # Remove/Comment below two lines when running
-                    #pygame.mixer.music.set_pos((LT-start)/60)
-                    #volume = 1.0
-                volume = min(1.0, volume + 0.05)
-                pygame.mixer.music.set_volume(volume)
-                if volume >= 1.0:
-                    fading = True
+            if LT == start and not activeMusic:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[3][1])
+                pygame.mixer.music.play(0)
+                if debug:
+                    LT = debugF
+                pygame.mixer.music.set_pos((LT - start) / 60)
+                activeMusic = True
 
             # Handle enemy logic
             enemyLogic(LT)
@@ -937,9 +927,8 @@ async def level_4():
             LT += 1
             await asyncio.sleep(0)
 
-async def level_5():
+async def level_5(debug):
     pygame.mixer.music.unload()
-    volume = 0.0
     bpm = 183
     activeMusic = False
     start = 260
@@ -949,15 +938,12 @@ async def level_5():
     diff = 0
     color1 = (0, 0, 0)
     color2 = (0, 0, 0)
-
-    # When running, set LT = 0
-    # When debugging, set LT >= 0
     LT = 0
     INVT = 0
-    fading = False
     fpb = 3600 / bpm
     lives = 3
     paused = False
+    debugF=0
 
     # Use aprox values
     beats1 = [round(i * fpb/2) for i in range(44*2)]
@@ -971,11 +957,15 @@ async def level_5():
     beats9 = [round(i * fpb*2) for i in range(0, 14)]
     beats10 = [round(i * fpb*2) for i in range(0, 14)]
 
-
     # Use precise values
     refBeat = [start, start + round(16*fpb), start + round(48*fpb), start + round(80*fpb), start + round(112*fpb),
                start + round(144*fpb), start + round(176*fpb), start + round(212*fpb), start + round(244*fpb),
                start + round(276*fpb), start + round(308*fpb)]
+
+    if debug:
+        drawText(font, "See Console", "white", 550, 340, 255)
+        pygame.display.flip()
+        debugF=max(int(input("Starting frame: ")),start)
 
     while not lives==0:
         # Handle events
@@ -1004,19 +994,13 @@ async def level_5():
                 elif LT < fs:
                     drawText(font, "Milky Ways", "white", 830, 600, 255)
                     drawText(font, "Bossfight", "white", 830, 650, 255)
-            if LT >= start - 25 and not fading:
-                if not activeMusic:
-                    pygame.mixer.music.load(musicFolder + RectLevelMusic[4][1])
-                    pygame.mixer.music.play(0)
-                    # Debug set song position
-                    # Remove/Comment below two lines when running
-                    #LT=1100
-                    #pygame.mixer.music.set_pos((LT-start)/60)
-                    #volume = 1.0
-                volume = min(1.0, volume + 0.05)
-                pygame.mixer.music.set_volume(volume)
-                if volume >= 1.0:
-                    fading = True
+            if LT == start and not activeMusic:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[4][1])
+                pygame.mixer.music.play(0)
+                if debug:
+                    LT=debugF
+                pygame.mixer.music.set_pos((LT-start)/60)
+                activeMusic=True
 
             # Handle enemy logic
             enemyLogic(LT)
@@ -1239,7 +1223,7 @@ async def level_5():
             LT += 1
             await asyncio.sleep(0)
 
-async def level_6():
+async def level_6(debug):
     pygame.mixer.music.unload()
     pygame.mixer.music.load(musicFolder + RectLevelMusic[5][1])
     pygame.mixer.music.play(0)
@@ -1247,7 +1231,7 @@ async def level_6():
 
 #Main lobby
 async def main():
-    global activeMusic, volume, busyFading, fading, Gvx, Gvy, screenID
+    global activeMusic, volume, busyFading, fading, Gvx, Gvy, screenID, idx, debug
     ticking=False
     alpha=255
     pygame.mixer.music.load(musicFolder + 'Circus.ogg')
@@ -1259,8 +1243,18 @@ async def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
             elif event.type == pygame.KEYDOWN:
+                if screenID == 1:
+                    if event.key == code[idx]:
+                        idx += 1
+                        if idx == 5:
+                            debug = not debug
+                            idx = 0
+                    else:
+                        idx=0
+                        if event.key == code[idx]:
+                            idx += 1
                 if event.key == pygame.K_ESCAPE:
-                    if screenID !=1:
+                    if screenID != 1:
                         pygame.mixer.music.unload()
                         pygame.mixer.music.load(musicFolder + 'Circus.ogg')
                         pygame.mixer.music.set_volume(0.4)
@@ -1278,22 +1272,22 @@ async def main():
                         GlideEnemies.clear()
                         SpinEnemies.clear()
                         if activeMusic==0:
-                            await level_1()
+                            await level_1(debug)
                             fading = True
                         elif activeMusic == 1:
-                            await level_2()
+                            await level_2(debug)
                             fading = True
                         elif activeMusic == 2:
-                            await level_3()
+                            await level_3(debug)
                             fading = True
                         elif activeMusic == 3:
-                            await level_4()
+                            await level_4(debug)
                             fading = True
                         elif activeMusic == 4:
-                            await level_5()
+                            await level_5(debug)
                             fading = True
                         elif activeMusic == 5:
-                            await level_6()
+                            await level_6(debug)
                             fading = True
         if screenID==1:
             if ticking:
@@ -1315,6 +1309,8 @@ async def main():
             drawText(font, "Project Beats Remix", "skyblue", 500, 300, alpha)
             drawText(font, "By: Jayson Liu", "skyblue", 545, 360, alpha)
             drawText(font, "Press Enter to Continue", "skyblue", 480, 420, alpha)
+            if debug:
+                drawText(font, "Debug Mode On", "orange", 535, 500, alpha)
         elif screenID==2:
             pygame.draw.rect(screen, "yellow", RectLevelMusic[0][0])
             pygame.draw.rect(screen, "purple", RectLevelMusic[1][0])
