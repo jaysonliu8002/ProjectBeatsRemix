@@ -246,7 +246,7 @@ def invCheck(lives, INVT, LT, player_mask):
                     break
     return lives, INVT
 
-def keyBinds(paused, LT):
+def keyBinds(paused, LT, debug):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -262,12 +262,66 @@ def keyBinds(paused, LT):
                     drawText(font, "Game Paused", "white", 550, 340, 255)
                     pygame.display.flip()
                     return 1
-        elif event.type == pygame.MOUSEBUTTONDOWN:
+        elif debug and event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 print("Frame #: " + str(LT))
                 print("M-Pos: ", pygame.mouse.get_pos())
                 print("P-Pos: ", player.centerx, player.centery)
     return paused
+
+#Debug function
+async def debugFunction(debug):
+    if not debug:
+        return 0, False
+    debugF = 0
+    text = 'Starting Frame'
+    textbox = pygame.Rect(520, 240, 240, 40)
+    debugINVT = False
+    rectDebugINVT = pygame.Rect(540, 340, 40, 40)
+    active = False
+    set = not debug
+
+    while not set:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return -1, False
+                if active:
+                    if event.key == pygame.K_BACKSPACE:
+                        text = text[:-1]
+                    else:
+                        text += event.unicode
+                if event.key == pygame.K_RETURN:
+                    active = False
+                    try:
+                        debugF = max(0, int(text))
+                        set = True
+                    except Exception:
+                        text = "Bad Input"
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if textbox.collidepoint(event.pos):
+                        text = ""
+                        active = True
+                    else:
+                        active = False
+                    if rectDebugINVT.collidepoint(event.pos):
+                        debugINVT = not debugINVT
+
+        drawText(pygame.font.Font(None, 64), "Debug Menu", "pink", 500, 140, 255)
+        pygame.draw.rect(screen, "white", textbox)
+        drawText(font, text, "black", 540, 248, 255)
+        drawText(font, "God Mode", "white", 600, 348, 255)
+        if debugINVT:
+            pygame.draw.rect(screen, "green", rectDebugINVT)
+        else:
+            pygame.draw.rect(screen, "red", rectDebugINVT)
+
+        pygame.display.flip()
+        await asyncio.sleep(0)
+    return debugF, debugINVT
 
 #Levels
 async def level_1(debug):
@@ -280,7 +334,6 @@ async def level_1(debug):
     fpb = 3600/bpm
     lives=3
     paused = False
-    debugF = 0
 
     #Use aprox values
     beats1 = [i for i in range(0, 50, 10)]
@@ -302,22 +355,27 @@ async def level_1(debug):
     refBeat = [start, start+round(16*3600/bpm), start+round(32*fpb), start+round(48*3600/bpm),
                start+round(56*fpb), start+round(64*fpb), start+round(96*fpb)]
 
-    if debug:
-        drawText(font, "See Console", "white", 550, 340, 255)
-        pygame.display.flip()
-        debugF=max(int(input("Starting frame: ")),start)
+    player.centerx = width / 2
+    player.centery = height / 2
+
+    debugF, debugINVT = await debugFunction(debug)
+    if debugF == -1:
+        return
+    if debugINVT:
+        INVT = 99999
 
     while not lives==0:
         # Handle events
-        paused = keyBinds(paused, LT)
+        paused = keyBinds(paused, LT, debug)
 
         #Core game code
         if paused==-1:
             player.centerx = width / 2
             player.centery = height / 2
-            break
+            return
         elif paused==0:
             screen.fill("black")
+
             #Fading text
             if LT<=240:
                 fs, fe = 180, 240
@@ -330,10 +388,9 @@ async def level_1(debug):
                     drawText(font, "Ryu Nagamatsu & Asuka Ohta", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[0][1])
-                pygame.mixer.music.play(0)
                 if debug:
-                    LT = debugF
-                pygame.mixer.music.set_pos((LT - start) / 60)
+                    LT=max(debugF, start)
+                pygame.mixer.music.play(loops=0, start=(LT - start) / 60)
                 activeMusic = True
 
             # Handle enemy logic
@@ -403,7 +460,6 @@ async def level_2(debug):
     fpb = 3600 / bpm
     lives = 3
     paused = False
-    debugF = 0
 
     # Use aprox values
     beats1 = [round(i*fpb*4) for i in range(60//4)]
@@ -428,23 +484,26 @@ async def level_2(debug):
                start + round(144*fpb), start + round(160*fpb), start + round(176*fpb), start + round(192*fpb),
                start + round(224*fpb), start + round(272*fpb)]
 
-    if debug:
-        drawText(font, "See Console", "white", 550, 340, 255)
-        pygame.display.flip()
-        debugF=max(int(input("Starting frame: ")),start)
+    player.centerx = width / 2
+    player.centery = height / 2
+
+    debugF, debugINVT = await debugFunction(debug)
+    if debugF == -1:
+        return
+    if debugINVT:
+        INVT = 99999
 
     while not lives==0:
         # Handle events
-        paused = keyBinds(paused, LT)
+        paused = keyBinds(paused, LT, debug)
 
         # Core game code
         if paused==-1:
             player.centerx = width / 2
             player.centery = height / 2
-            break
+            return
         elif paused==0:
             screen.fill("black")
-
             # Fading text
             if LT <= 240:
                 fs, fe = 180, 240
@@ -457,10 +516,9 @@ async def level_2(debug):
                     drawText(font, "Chipzel", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[1][1])
-                pygame.mixer.music.play(0)
                 if debug:
-                    LT = debugF
-                pygame.mixer.music.set_pos((LT - start) / 60)
+                    LT = max(debugF, start)
+                pygame.mixer.music.play(loops=0, start=(LT - start) / 60)
                 activeMusic = True
 
             # Handle enemy logic
@@ -570,7 +628,6 @@ async def level_3(debug):
     fpb = 3600 / bpm
     lives = 3
     paused = False
-    debugF = 0
 
     # Use aprox values
     beats1 = [round(i * fpb) for i in range(22)]
@@ -581,21 +638,25 @@ async def level_3(debug):
     refBeat = [start, start + round(26 * fpb), start + round(58 * fpb), start + round(90 * fpb)]
     player_mask = pygame.Mask(player.size, fill=True)
 
-    if debug:
-        drawText(font, "See Console", "white", 550, 340, 255)
-        pygame.display.flip()
-        debugF=max(int(input("Starting frame: ")),start)
+    player.centerx = width / 2
+    player.centery = height / 2
+
+    debugF, debugINVT = await debugFunction(debug)
+    if debugF == -1:
+        return
+    if debugINVT:
+        INVT = 99999
 
     while not lives == 0:
 
         # Handle events
-        paused = keyBinds(paused, LT)
+        paused = keyBinds(paused, LT, debug)
 
         # Core game code
         if paused==-1:
             player.centerx = width / 2
             player.centery = height / 2
-            break
+            return
         elif paused==0:
             if not flashing:
                 screen.fill(color1)
@@ -616,10 +677,9 @@ async def level_3(debug):
                     drawText(font, "Purple Fluxxy", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[2][1])
-                pygame.mixer.music.play(0)
                 if debug:
-                    LT = debugF
-                pygame.mixer.music.set_pos((LT - start) / 60)
+                    LT = max(debugF, start)
+                pygame.mixer.music.play(loops=0, start=(LT - start) / 60)
                 activeMusic = True
 
             # Handle enemy logic
@@ -703,7 +763,6 @@ async def level_4(debug):
     fpb = 3600 / bpm
     lives = 3
     paused = False
-    debugF = 0
 
     # Use aprox values
     beats1 = [round(i * fpb) for i in range(60)]
@@ -717,21 +776,25 @@ async def level_4(debug):
                start + round(160*fpb), start + round(192*fpb)]
     player_mask = pygame.Mask(player.size, fill=True)
 
-    if debug:
-        drawText(font, "See Console", "white", 550, 340, 255)
-        pygame.display.flip()
-        debugF=max(int(input("Starting frame: ")),start)
+    player.centerx = width / 2
+    player.centery = height / 2
+
+    debugF, debugINVT = await debugFunction(debug)
+    if debugF == -1:
+        return
+    if debugINVT:
+        INVT = 99999
 
     while not lives==0:
 
         # Handle events
-        paused = keyBinds(paused, LT)
+        paused = keyBinds(paused, LT, debug)
 
         # Core game code
         if paused==-1:
             player.centerx = width / 2
             player.centery = height / 2
-            break
+            return
         elif paused==0:
             if not flashing:
                 screen.fill(color1)
@@ -750,12 +813,11 @@ async def level_4(debug):
                 elif LT < fs:
                     drawText(font, "Sevcon", "white", 830, 600, 255)
                     drawText(font, "Big Giant Circles", "white", 830, 650, 255)
-            if LT == start and not activeMusic:
+            if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[3][1])
-                pygame.mixer.music.play(0)
                 if debug:
-                    LT = debugF
-                pygame.mixer.music.set_pos((LT - start) / 60)
+                    LT = max(debugF, start)
+                pygame.mixer.music.play(loops=0, start=(LT - start) / 60)
                 activeMusic = True
 
             # Handle enemy logic
@@ -943,7 +1005,6 @@ async def level_5(debug):
     fpb = 3600 / bpm
     lives = 3
     paused = False
-    debugF=0
 
     # Use aprox values
     beats1 = [round(i * fpb/2) for i in range(44*2)]
@@ -962,20 +1023,24 @@ async def level_5(debug):
                start + round(144*fpb), start + round(176*fpb), start + round(212*fpb), start + round(244*fpb),
                start + round(276*fpb), start + round(308*fpb)]
 
-    if debug:
-        drawText(font, "See Console", "white", 550, 340, 255)
-        pygame.display.flip()
-        debugF=max(int(input("Starting frame: ")),start)
+    player.centerx = width / 2
+    player.centery = height / 2
+
+    debugF, debugINVT = await debugFunction(debug)
+    if debugF == -1:
+        return
+    if debugINVT:
+        INVT = 99999
 
     while not lives==0:
         # Handle events
-        paused = keyBinds(paused, LT)
+        paused = keyBinds(paused, LT, debug)
 
         # Core game code
         if paused==-1:
             player.centerx = width / 2
             player.centery = height / 2
-            break
+            return
         elif paused==0:
             if not flashing:
                 screen.fill(color1)
@@ -994,12 +1059,11 @@ async def level_5(debug):
                 elif LT < fs:
                     drawText(font, "Milky Ways", "white", 830, 600, 255)
                     drawText(font, "Bossfight", "white", 830, 650, 255)
-            if LT == start and not activeMusic:
+            if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[4][1])
-                pygame.mixer.music.play(0)
                 if debug:
-                    LT=debugF
-                pygame.mixer.music.set_pos((LT-start)/60)
+                    LT = max(debugF, start)
+                pygame.mixer.music.play(loops=0, start=(LT - start) / 60)
                 activeMusic=True
 
             # Handle enemy logic
@@ -1361,7 +1425,8 @@ async def main():
                 try:
                     pygame.mixer.music.play(0)
                 except pygame.error:
-                    print("Music Error: No music found. Defaulting to lobby music.")
+                    if debug:
+                        print("Music Error: No music found. Defaulting to lobby music.")
                     fading=False
                     pygame.mixer.music.load(musicFolder + RectLobbyMusic)
                     pygame.mixer.music.play(0)
