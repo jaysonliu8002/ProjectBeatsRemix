@@ -1,5 +1,7 @@
 # ProjectBeatsRemix Version 0.3.4-alpha
-Basically a Pygame version of Just Shapes and Beats and Project Arrhythmia.
+My reimagination of Just Shapes and Beats and Project Arrhythmia using only Python.
+
+(Sorry for the lack of updates. As a high school student, I had to focus on exams and stuff taking up my life. I'll push an update out by the end of May.)
 
 Controls: WASD
 
@@ -15,4 +17,4 @@ Type the key combination "d-e-b-u-g" while on the title screen, and a debug text
 
 # Bug fixes:
 
-No new bugs found for now...
+???
