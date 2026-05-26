@@ -1,5 +1,5 @@
 # ProjectBeatsRemix Version 0.3.4-alpha
-My reimagination of Just Shapes and Beats and Project Arrhythmia using exclusively Python.
+A reimagination of Just Shapes and Beats and Project Arrhythmia using exclusively Python.
 
 (Sorry for the lack of updates. As a high school student, I had to focus on exams and stuff taking up my life. I'll push an update out by the end of May.)
 
