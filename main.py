@@ -27,6 +27,7 @@ damageSFX = pygame.mixer.Sound('SFX/damageSFX.ogg')
 
 #Text and related
 font = pygame.font.Font(None, 40)
+musicFont = pygame.font.Font('Font/NotoMusic-Regular.ttf', 40)
 
 #Enemies and Logic
 RectEnemies = []
@@ -39,6 +40,16 @@ SpinEnemies = []
 debug = False
 code = [pygame.K_d, pygame.K_e, pygame.K_b, pygame.K_u, pygame.K_g]
 idx = 0
+globalTimer = 0
+
+def musicFontAnimation(globalTimer, interval, size):
+    global musicFont
+    if globalTimer%interval<interval/10:
+        musicFont = pygame.font.Font('Font/NotoMusic-Regular.ttf', size+5)
+    elif globalTimer%interval<interval/5:
+        musicFont = pygame.font.Font('Font/NotoMusic-Regular.ttf', size-5)
+    else:
+        musicFont = pygame.font.Font('Font/NotoMusic-Regular.ttf', size)
 
 def enemyLogic(LT):
     global RectEnemies
@@ -126,11 +137,11 @@ def enemyLogic(LT):
 #Screen 2
 RectLevelMusic = [[pygame.rect.Rect(0*width/4, 0*height/3, width/4, height/3), 'CoconutMall.ogg'],
                   [pygame.rect.Rect(1*width/4, 0*height/3, width/4, height/3), 'Focus.ogg'],
-                  [pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3), 'Tetris.ogg'],
+                  [pygame.rect.Rect(2*width/4, 0*height/3, width/4, height/3), 'Chronos.ogg'],
                   [pygame.rect.Rect(3*width/4, 0*height/3, width/4, height/3), 'Sevcon.ogg'],
 
                   [pygame.rect.Rect(0*width/4, 1*height/3, width/4, height/3), 'MilkyWays.ogg'],
-                  [pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3), 'Chronos.ogg'],
+                  [pygame.rect.Rect(3*width/4, 1*height/3, width/4, height/3), 'Tetris.ogg'],
 
                   [pygame.rect.Rect(0*width/4, 2*height/3, width/4, height/3), 'StartTheStars.ogg'],
                   [pygame.rect.Rect(1*width/4, 2*height/3, width/4, height/3), 'StartTheStars.ogg'],
@@ -325,6 +336,7 @@ async def debugFunction(debug):
 
 #Levels
 async def level_1(debug):
+    global globalTimer
     pygame.mixer.music.unload()
     bpm = 132
     activeMusic = False
@@ -375,16 +387,21 @@ async def level_1(debug):
             return
         elif paused==0:
             screen.fill("black")
-
+            globalTimer+=1
             #Fading text
             if LT<=240:
                 fs, fe = 180, 240
+                musicFontAnimation(globalTimer, 30, 40)
                 if fs <= LT <= fe:
                     alpha = 255 * (1 - (LT - fs) / (fe - fs))
                     drawText(font, "Coconut Mall", "white", 830, 600, alpha)
+                    drawText(musicFont, "♫", "green",  800, 620, alpha)
+                    drawText(musicFont, "♫", "green", 1240, 620, alpha)
                     drawText(font, "Ryu Nagamatsu & Asuka Ohta", "white", 830, 650, alpha)
                 elif LT < fs:
                     drawText(font, "Coconut Mall", "white", 830, 600, 255)
+                    drawText(musicFont, "♫", "green",  800, 620, 255)
+                    drawText(musicFont, "♫", "green", 1240, 620, 255)
                     drawText(font, "Ryu Nagamatsu & Asuka Ohta", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[0][1])
@@ -449,6 +466,7 @@ async def level_1(debug):
             await asyncio.sleep(0)
 
 async def level_2(debug):
+    global globalTimer
     pygame.mixer.music.unload()
     bpm = 174
     activeMusic = False
@@ -504,15 +522,21 @@ async def level_2(debug):
             return
         elif paused==0:
             screen.fill("black")
+            globalTimer += 1
             # Fading text
             if LT <= 240:
                 fs, fe = 180, 240
+                musicFontAnimation(globalTimer, 30, 40)
                 if fs <= LT <= fe:
                     alpha = 255 * (1 - (LT - fs) / (fe - fs))
                     drawText(font, "Focus", "white", 830, 600, alpha)
+                    drawText(musicFont, "♫", "green", 800, 620, alpha)
+                    drawText(musicFont, "♫", "green", 940, 620, alpha)
                     drawText(font, "Chipzel", "white", 830, 650, alpha)
                 elif LT < fs:
                     drawText(font, "Focus", "white", 830, 600, 255)
+                    drawText(musicFont, "♫", "green", 800, 620, 255)
+                    drawText(musicFont, "♫", "green", 940, 620, 255)
                     drawText(font, "Chipzel", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[1][1])
@@ -622,7 +646,7 @@ async def level_3(debug):
     diff = 0
     color1 = (0, 0, 0)
     color2 = (0, 0, 0)
-    global Gvx, Gvy
+    global Gvx, Gvy, globalTimer
     LT = 0
     INVT = 0
     fpb = 3600 / bpm
@@ -665,16 +689,22 @@ async def level_3(debug):
                 if LT >= time:
                     flashing = False
                     color1 = color2
+            globalTimer += 1
             # Fading text
             if LT <= 240:
                 fs, fe = 180, 240
+                musicFontAnimation(globalTimer, 30, 40)
                 if fs <= LT <= fe:
                     alpha = 255 * (1 - (LT - fs) / (fe - fs))
-                    drawText(font, "Tetris", "white", 830, 600, alpha)
-                    drawText(font, "Purple Fluxxy", "white", 830, 650, alpha)
+                    drawText(font, "Factory", "white", 830, 600, alpha)
+                    drawText(musicFont, "♫", "green", 800, 620, alpha)
+                    drawText(musicFont, "♫", "green", 1060, 620, alpha)
+                    drawText(font, "Danimal Cannon", "white", 830, 650, alpha)
                 elif LT < fs:
-                    drawText(font, "Tetris", "white", 830, 600, 255)
-                    drawText(font, "Purple Fluxxy", "white", 830, 650, 255)
+                    drawText(font, "Factory", "white", 830, 600, 255)
+                    drawText(musicFont, "♫", "green", 800, 620, 255)
+                    drawText(musicFont, "♫", "green", 1060, 620, 255)
+                    drawText(font, "Danimal Cannon", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[2][1])
                 if debug:
@@ -748,6 +778,7 @@ async def level_3(debug):
             await asyncio.sleep(0)
 
 async def level_4(debug):
+    global globalTimer
     pygame.mixer.music.unload()
     bpm = 133
     activeMusic = False
@@ -803,15 +834,21 @@ async def level_4(debug):
                 if LT>=time:
                     flashing = False
                     color1=color2
+            globalTimer += 1
             # Fading text
             if LT <= 240:
                 fs, fe = 180, 240
+                musicFontAnimation(globalTimer, 30, 40)
                 if fs <= LT <= fe:
                     alpha = 255 * (1 - (LT - fs) / (fe - fs))
                     drawText(font, "Sevcon", "white", 830, 600, alpha)
+                    drawText(musicFont, "♫", "green", 800, 620, alpha)
+                    drawText(musicFont, "♫", "green", 1070, 620, alpha)
                     drawText(font, "Big Giant Circles", "white", 830, 650, alpha)
                 elif LT < fs:
                     drawText(font, "Sevcon", "white", 830, 600, 255)
+                    drawText(musicFont, "♫", "green", 800, 620, 255)
+                    drawText(musicFont, "♫", "green", 1070, 620, 255)
                     drawText(font, "Big Giant Circles", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[3][1])
@@ -990,6 +1027,7 @@ async def level_4(debug):
             await asyncio.sleep(0)
 
 async def level_5(debug):
+    global globalTimer
     pygame.mixer.music.unload()
     bpm = 183
     activeMusic = False
@@ -1049,15 +1087,22 @@ async def level_5(debug):
                 if LT>=time:
                     flashing = False
                     color1=color2
+            globalTimer += 1
             # Fading text
             if LT <= 240:
                 fs, fe = 180, 240
+                musicFontAnimation(globalTimer, 30, 40)
                 if fs <= LT <= fe:
                     alpha = 255 * (1 - (LT - fs) / (fe - fs))
                     drawText(font, "Milky Ways", "white", 830, 600, alpha)
+                    drawText(musicFont, "♫", "green", 800, 620, alpha)
+                    drawText(musicFont, "♫", "green", 960, 620, alpha)
+
                     drawText(font, "Bossfight", "white", 830, 650, alpha)
                 elif LT < fs:
                     drawText(font, "Milky Ways", "white", 830, 600, 255)
+                    drawText(musicFont, "♫", "green", 800, 620, 255)
+                    drawText(musicFont, "♫", "green", 960, 620, 255)
                     drawText(font, "Bossfight", "white", 830, 650, 255)
             if LT >= start and not activeMusic:
                 pygame.mixer.music.load(musicFolder + RectLevelMusic[4][1])
@@ -1288,20 +1333,158 @@ async def level_5(debug):
             await asyncio.sleep(0)
 
 async def level_6(debug):
+    if not debug: return
     pygame.mixer.music.unload()
-    pygame.mixer.music.load(musicFolder + RectLevelMusic[5][1])
-    pygame.mixer.music.play(0)
-    await asyncio.sleep(0)
+    bpm = 143
+    activeMusic = False
+    start = 300
+    switch = True
+    flashing = False
+    time = 0
+    diff = 0
+    color1 = (0, 0, 0)
+    color2 = (0, 0, 0)
+    global Gvx, Gvy, globalTimer
+    LT = 0
+    INVT = 0
+    fpb = 3600 / bpm
+    lives = 3
+    paused = False
+
+    # Use aprox values
+    beats1 = [round(i * fpb) for i in range(22)]
+    beats2 = [round(i * fpb * 4) for i in range(7)]
+    beats3 = [round(i * fpb / 2) for i in range(54)]
+
+    # Use precise values
+    refBeat = [start, start + round(26 * fpb), start + round(58 * fpb), start + round(90 * fpb)]
+    player_mask = pygame.Mask(player.size, fill=True)
+
+    player.centerx = width / 2
+    player.centery = height / 2
+
+    debugF, debugINVT = await debugFunction(debug)
+    if debugF == -1:
+        return
+    if debugINVT:
+        INVT = 99999
+
+    while not lives == 0:
+
+        # Handle events
+        paused = keyBinds(paused, LT, debug)
+
+        # Core game code
+        if paused == -1:
+            player.centerx = width / 2
+            player.centery = height / 2
+            return
+        elif paused == 0:
+            if not flashing:
+                screen.fill(color1)
+            else:
+                transitionColor(LT, time, diff, color1, color2)
+                if LT >= time:
+                    flashing = False
+                    color1 = color2
+            globalTimer += 1
+            # Fading text
+            if LT <= 240:
+                fs, fe = 180, 240
+                musicFontAnimation(globalTimer, 30, 40)
+                if fs <= LT <= fe:
+                    alpha = 255 * (1 - (LT - fs) / (fe - fs))
+                    drawText(font, "Tetris", "white", 830, 600, alpha)
+                    drawText(musicFont, "♫", "green", 800, 620, alpha)
+                    drawText(musicFont, "♫", "green", 1020, 620, alpha)
+                    drawText(font, "Purple Fluxxy", "white", 830, 650, alpha)
+                elif LT < fs:
+                    drawText(font, "Tetris", "white", 830, 600, 255)
+                    drawText(musicFont, "♫", "green", 800, 620, 255)
+                    drawText(musicFont, "♫", "green", 1020, 620, 255)
+                    drawText(font, "Purple Fluxxy", "white", 830, 650, 255)
+            if LT >= start and not activeMusic:
+                pygame.mixer.music.load(musicFolder + RectLevelMusic[2][1])
+                if debug:
+                    LT = max(debugF, start)
+                pygame.mixer.music.play(loops=0, start=(LT - start) / 60)
+                activeMusic = True
+
+            # Handle enemy logic
+            enemyLogic(LT)
+            # x, y, w, h, LT, dur, warn, x2, y2, vx, vy, t
+            # Enemies start here
+            for i in beats1:
+                switch = random.randint(0, 1)
+                if LT == refBeat[0] + i:
+                    if switch:
+                        LaserEnemies.append(
+                            generateLaser(random.randint(0, 1230), 0, 50, 720, LT + round(2 * fpb), round(fpb),
+                                          round(2 * fpb)))
+                    else:
+                        LaserEnemies.append(
+                            generateLaser(0, random.randint(0, 670), 1280, 50, LT + round(2 * fpb), round(fpb),
+                                          round(2 * fpb)))
+            if LT == refBeat[1] - round(4 * fpb):
+                GlideEnemies.append(generateGliding(0, 0, 380, 720, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), -380, 0, 10, 0, 38))
+                GlideEnemies.append(generateGliding(900, 0, 380, 720, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), 1280, 0, -10, 0, 38))
+                GlideEnemies.append(generateGliding(380, 0, 520, 20, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), 380, -20, 0, 1, 20))
+                GlideEnemies.append(generateGliding(380, 700, 520, 20, LT + round(2 * fpb), round(64 * fpb),
+                                                    round(2 * fpb), 380, 720, 0, -1, 20))
+            if LT == refBeat[1]:
+                Gvy = 3
+            for i in beats2:
+                if LT == refBeat[1] + i:
+                    LaserEnemies.append(
+                        generateLaser(0, random.randint(0, 520), 1280, 200, LT + round(2 * fpb), round(2 * fpb),
+                                      round(2 * fpb)))
+            if LT == refBeat[2]:
+                Gvy = 0
+                Gvx = 2
+            for i in beats3:
+                if LT == refBeat[2] + i:
+                    LaserEnemies.append(
+                        generateLaser(random.randint(380, 890), 0, 10, 720, LT + round(2 * fpb), round(fpb),
+                                      round(2 * fpb)))
+            if LT == refBeat[3]:
+                Gvx = 0
+            # Enemies end here
+
+            # Player movement
+            movePlayer(player)
+
+            # I frames
+            lives, INVT = invCheck(lives, INVT, LT, player_mask)
+
+            # End of level
+            if LT >= start + round(100 * fpb):
+                player.centerx = width / 2
+                player.centery = height / 2
+                lives = 0
+                print("You win")
+
+            # Damage taken
+            damageCheck(lives, INVT, LT)
+
+            # Ticks and Display
+            pygame.display.flip()
+            fps.tick(60)
+            LT += 1
+            await asyncio.sleep(0)
 
 #Main lobby
 async def main():
-    global activeMusic, volume, busyFading, fading, Gvx, Gvy, screenID, idx, debug
+    global activeMusic, volume, busyFading, fading, Gvx, Gvy, screenID, idx, debug, globalTimer
     ticking=False
     alpha=255
     pygame.mixer.music.load(musicFolder + 'Circus.ogg')
     pygame.mixer.music.set_volume(0.4)
     pygame.mixer.music.play(0)
     while True:
+        globalTimer += 1
         Gvx=Gvy=0
         screen.fill("black")
         for event in pygame.event.get():
@@ -1369,8 +1552,10 @@ async def main():
             s.set_alpha(alpha)  # alpha level
             s.fill("purple")  # this fills the entire surface
             screen.blit(s, (1280/2-175, 720/2-75))
-
-            drawText(font, "Project Beats Remix", "skyblue", 500, 300, alpha)
+            musicFontAnimation(globalTimer, 30, 40)
+            drawText(musicFont, "♫", "green", 475, 265, alpha)
+            drawText(musicFont, "♫", "green", 785, 265, alpha)
+            drawText(font, "Project Beats Remix", "skyblue", 505, 300, alpha)
             drawText(font, "By: Jayson Liu", "skyblue", 545, 360, alpha)
             drawText(font, "Press Enter to Continue", "skyblue", 480, 420, alpha)
             if debug:
@@ -1386,7 +1571,7 @@ async def main():
             drawText(font, "Go to a level and hit 'Enter' to play", "white", 420, 400, 255)
             drawText(font, "Level 1: Coconut Mall", "purple", 15, 100, 255)
             drawText(font, "Level 2: Focus", "yellow", 380, 100, 255)
-            drawText(font, "Level 3: Tetris (WIP)", "cyan", 670, 100, 255)
+            drawText(font, "Level 3: Factory", "cyan", 690, 100, 255)
             drawText(font, "Level 4: Sevcon", "dark green", 1020, 100, 255)
             drawText(font, "Level 5: Milky Ways", "orange", 20, 340, 255)
             drawText(font, "Level 6: ???", "white", 1020, 340, 255)
