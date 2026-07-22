@@ -2,7 +2,7 @@
 
 **Development has been temporarily halted while college application season opens up**
 
-A reimagination of Just Shapes and Beats and Project Arrhythmia using Python exclusively.
+A reimagination of Just Shapes and Beats and Project Arrhythmia using Python exclusively. No AI of any kind was used in the making of this project.
 
 Controls: WASD
 
