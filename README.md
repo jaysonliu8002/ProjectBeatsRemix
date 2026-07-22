@@ -1,4 +1,7 @@
 # ProjectBeatsRemix Version 0.3.5-alpha
+
+**Development has been temporarily halted while college application season opens up**
+
 A reimagination of Just Shapes and Beats and Project Arrhythmia using Python exclusively.
 
 Controls: WASD
