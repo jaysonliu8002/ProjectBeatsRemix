@@ -1,6 +1,6 @@
 # ProjectBeatsRemix Version 0.3.5-alpha
 
-**Development has been temporarily halted while college application season opens up**
+**The game is currently under heavy development for a complete code rewrite. New content has been halted until further notice.**
 
 A reimagination of Just Shapes and Beats and Project Arrhythmia using Python exclusively. No AI of any kind was used in the making of this project.
 
